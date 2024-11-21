@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+    mode: host
     ports:
       # Login server
       - "8484:8484"
