@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  deploy:
+  build-push:
     runs-on: ubuntu-latest
     name: Deploy otters-story
     steps:
@@ -35,21 +35,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs:
-      - deploy
+      - build-push
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: create env file
-      run: |
-        echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+      - name: create env file
+        run: |
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
 
-    - name: Docker Stack Deploy
-      uses: cssnr/stack-deploy-action@v1
-      with:
-        name: otterstory
-        file: docker-stack.yaml
-        host: ${{ secrets.IP}}
-        user: deploy
-        ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-        env_file: ./envfile
+      - name: Docker Stack Deploy
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: otterstory
+          file: docker-stack.yaml
+          host: ${{ secrets.IP}}
+          user: deploy
+          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          env_file: ./envfile
