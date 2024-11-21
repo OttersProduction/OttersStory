@@ -6,15 +6,25 @@ services:
     depends_on:
       - db
     deploy:
-      mode: global
-      endpoint_mode: dnsrr
+      update_config:
+        order: start-first
+
     ports:
-      # Login server
-      - "8484:8484"
-      # Channels.
-      # Format: WWCC, where WW is 75 plus the world number and CC is 75 plus the channel number (both zero indexed).
-      # In this case, world 1 channel 1.
-      - "7575-7575:7575-7575"
+      - target: 8484
+        published: 8484
+        protocol: tcp
+        mode: host
+
+      - target: 7575
+        published: 7575
+        protocol: tcp
+        mode: host
+      # # Login server
+      # - "8484:8484"
+      # # Channels.
+      # # Format: WWCC, where WW is 75 plus the world number and CC is 75 plus the channel number (both zero indexed).
+      # # In this case, world 1 channel 1.
+      # - "7575-7575:7575-7575"
     volumes:
       # Config changes can be reloaded without rebuilding the image.
       # Still requires a redeployment as they're sourced on startup.
