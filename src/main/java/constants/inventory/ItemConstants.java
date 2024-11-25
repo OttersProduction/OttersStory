@@ -43,7 +43,7 @@ public final class ItemConstants {
     public final static short COLD = 0x04;
     public final static short UNTRADEABLE = 0x08;
     public final static short KARMA_EQP = 0x10;
-    public final static short SANDBOX = 0x40;             // let 0x40 until it's proven something uses this
+    public final static short SANDBOX = 0x40; // let 0x40 until it's proven something uses this
     public final static short PET_COME = 0x80;
     public final static short ACCOUNT_SHARING = 0x100;
     public final static short MERGE_UNTRADEABLE = 0x200;
@@ -52,7 +52,8 @@ public final class ItemConstants {
     public final static Set<Integer> permanentItemids = new HashSet<>();
 
     static {
-        // i ain't going to open one gigantic itemid cache just for 4 perma itemids, no way!
+        // i ain't going to open one gigantic itemid cache just for 4 perma itemids, no
+        // way!
         for (int petItemId : ItemId.getPermaPets()) {
             permanentItemids.add(petItemId);
         }
@@ -105,7 +106,8 @@ public final class ItemConstants {
     }
 
     public static boolean isPet(int itemId) {
-        return itemId / 1000 == 5000;
+        return itemId / 1000 >= 5000 && itemId / 1000 < 5003;
+
     }
 
     public static boolean isExpirablePet(int itemId) {

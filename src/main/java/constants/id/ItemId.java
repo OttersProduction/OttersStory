@@ -189,20 +189,21 @@ public class ItemId {
     public static final int ITEM_IGNORE = 1812007;
 
     public static boolean isPet(int itemId) {
-        return itemId / 1000 == 5000;
+        return itemId / 1000 >= 5000 && itemId / 1000 < 5003;
+
     }
 
     // Expirable pet
     public static final int PET_SNAIL = 5000054;
 
-    // Permanent pet
-    private static final int PERMA_PINK_BEAN = 5000060;
-    private static final int PERMA_KINO = 5000100;
-    private static final int PERMA_WHITE_TIGER = 5000101;
-    private static final int PERMA_MINI_YETI = 5000102;
+    // // Permanent pet
+    // private static final int PERMA_PINK_BEAN = 5000060;
+    // private static final int PERMA_KINO = 5000100;
+    // private static final int PERMA_WHITE_TIGER = 5000101;
+    // private static final int PERMA_MINI_YETI = 5000102;
 
     public static int[] getPermaPets() {
-        return new int[]{PERMA_PINK_BEAN, PERMA_KINO, PERMA_WHITE_TIGER, PERMA_MINI_YETI};
+        return new int[] {};
     }
 
     // Maker
@@ -340,8 +341,9 @@ public class ItemId {
     private static final int GLOVES_ATT_60_SCROLL = 2040804;
 
     public static int[] getOwlItems() {
-        return new int[]{WORK_GLOVES, STEELY_THROWING_KNIVES, ILBI_THROWING_STARS, OWL_BALL_MASK, PINK_ADVENTURER_CAPE,
-                CLAW_30_SCROLL, WHITE_SCROLL, HELMET_60_ACC_SCROLL, MAPLE_SHIELD, GLOVES_ATT_60_SCROLL};
+        return new int[] { WORK_GLOVES, STEELY_THROWING_KNIVES, ILBI_THROWING_STARS, OWL_BALL_MASK,
+                PINK_ADVENTURER_CAPE,
+                CLAW_30_SCROLL, WHITE_SCROLL, HELMET_60_ACC_SCROLL, MAPLE_SHIELD, GLOVES_ATT_60_SCROLL };
     }
 
     // Henesys PQ
