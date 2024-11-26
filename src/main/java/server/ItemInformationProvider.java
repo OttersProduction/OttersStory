@@ -1768,8 +1768,8 @@ public class ItemInformationProvider {
 
     public boolean isCash(int itemId) {
         int itemType = itemId / 1000000;
-
-        if (itemType == 5) {
+        int subItemType = itemId / 100000;
+        if (itemType == 5 || subItemType == 19) {
             return true;
         }
 
