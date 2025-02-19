@@ -19,8 +19,9 @@ jobs:
           filters: |
             bots:
               - 'bots/**'
+              - '!.github/**'
+              - '!*.md'
             main:
-              - '**/*'
               - '!bots/**'
               - '!.github/**'
               - '!*.md'
