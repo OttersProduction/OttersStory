@@ -6,6 +6,6 @@ services:
     secrets:
       - discord_token
 
-  secrets:
-    discord_token:
-      external: true
+secrets:
+  discord_token:
+    external: true
