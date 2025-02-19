@@ -30,13 +30,9 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/discord-bot .
 
-# Create script to handle secrets
-RUN echo '#!/bin/sh\n\
-if [ -f "/run/secrets/discord_token" ]; then\n\
-    echo "DISCORD_TOKEN=$(cat /run/secrets/discord_token)" > .env\n\
-fi\n\
-\n\
-exec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
+# Create entrypoint script using printf to ensure proper line endings
+RUN printf '#!/bin/sh\nif [ -f "/run/secrets/discord_token" ]; then\n    echo "DISCORD_TOKEN=$(cat /run/secrets/discord_token)" > .env\nfi\n\nexec "$@"\n' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["./discord-bot"]
