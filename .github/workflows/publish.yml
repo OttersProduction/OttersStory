@@ -20,8 +20,10 @@ jobs:
             bots:
               - 'bots/**'
             main:
-              - '**'
+              - '**/*'
               - '!bots/**'
+              - '!.github/**'
+              - '!*.md'
 
   build-push-story:
     runs-on: ubuntu-latest
