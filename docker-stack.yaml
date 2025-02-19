@@ -37,6 +37,10 @@ services:
       MYSQL_DATABASE: "cosmic"
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
 
+  bot:
+    image: ottersprod/otters-discord:${GIT_COMMIT_HASH:-latest}
+    restart: unless-stopped
+
     volumes:
       - /home/deploy/database/sql:/docker-entrypoint-initdb.d
       - /home/deploy/database/docker-db-data:/var/lib/mysql

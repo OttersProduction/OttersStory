@@ -21,7 +21,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push Otters Story
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -31,6 +31,17 @@ jobs:
           tags: |
             ottersprod/otters-story:latest
             ottersprod/otters-story:${{ github.sha }}
+
+      - name: Build and push Otters Bot
+        uses: docker/build-push-action@v5
+        with:
+          context: ./bots/discord
+          file: ./bots/discord/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ottersprod/otters-discord:latest
+            ottersprod/otters-discord:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
