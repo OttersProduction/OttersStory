@@ -59,7 +59,7 @@ React with the following for your **role**:
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf("Scheduled event created: %s at %s", scheduledEvent.Name, startTime.UTC().Format("2/1 15:04")),
+			Content: fmt.Sprintf("Scheduled event created <3: %s at %s", scheduledEvent.Name, startTime.UTC().Format("2/1 15:04")),
 		},
 	})
 
