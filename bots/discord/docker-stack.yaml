@@ -1,0 +1,5 @@
+version: "3"
+services:
+  bot:
+    image: ottersprod/otters-discord:${GIT_COMMIT_HASH:-latest}
+    restart: unless-stopped
