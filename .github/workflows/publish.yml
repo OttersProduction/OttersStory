@@ -4,18 +4,33 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - ".github/**"
+      - "*.md"
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      bots_changed: ${{ steps.filter.outputs.bots }}
+      main_changed: ${{ steps.filter.outputs.main }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            bots:
+              - 'bots/**'
+            main:
+              - '**/*'
+              - '!bots/**'
+
   build-push-story:
     runs-on: ubuntu-latest
     name: Deploy otters-story
-    on:
-      push:
-        paths:
-          - "**"
-          - "!.github/**"
-          - "!*.md"
-          - "!bots/**"
+    needs: check-changes
+    if: needs.check-changes.outputs.main_changed == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,12 +59,8 @@ jobs:
   build-push-bot:
     runs-on: ubuntu-latest
     name: Deploy otters-bot
-    on:
-      push:
-        paths:
-          - "bots/**"
-          - "!.github/**"
-          - "!*.md"
+    needs: check-changes
+    if: needs.check-changes.outputs.bots_changed == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,13 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-push-story
-    on:
-      push:
-        paths:
-          - "**"
-          - "!.github/**"
-          - "!*.md"
-          - "!bots/**"
+    if: needs.check-changes.outputs.main_changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -108,12 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-push-bot
-    on:
-      push:
-        paths:
-          - "bots/**"
-          - "!.github/**"
-          - "!*.md"
+    if: needs.check-changes.outputs.bots_changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
