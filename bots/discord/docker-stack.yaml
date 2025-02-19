@@ -3,3 +3,9 @@ services:
   bot:
     image: ottersprod/otters-discord:${GIT_COMMIT_HASH:-latest}
     restart: unless-stopped
+    secrets:
+      - discord_token
+
+  secrets:
+    discord_token:
+      external: true
