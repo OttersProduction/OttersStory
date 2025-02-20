@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -12,11 +13,12 @@ import (
 
 // Bot parameters
 var (
-	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
 var s *discordgo.Session
+var SuggestionChannel *string
+var GuildID *string
 
 func init() { flag.Parse() }
 
@@ -34,6 +36,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+
 }
 
 var (
@@ -54,18 +57,37 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "suggest",
+			Description: "Suggest a new feature or report a bug",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"opq-guide": OPQ_GuideCommand,
 		"ht-pt":     HT_PartyCommand,
+		"suggest":   SuggestionCommand,
 	}
 )
 
 func init() {
+
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		switch i.Type {
+		case discordgo.InteractionApplicationCommand:
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
+		case discordgo.InteractionModalSubmit:
+			data := i.ModalSubmitData()
+
+			if strings.HasPrefix(data.CustomID, "modals_suggestion") {
+				err := HandleModalSuggestion(s, i)
+				if err != nil {
+					log.Printf("Error handling modal suggestion: %v", err)
+				}
+			}
+
 		}
 	})
 
@@ -102,6 +124,22 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
+	}
+
+	GuildID = &s.State.Guilds[0].ID
+	channels, err := s.GuildChannels(*GuildID)
+	if err != nil {
+		log.Fatalf("Error getting guild channels: %v", err)
+	}
+
+	for _, channel := range channels {
+		if channel.Name == "suggestions" {
+			SuggestionChannel = &channel.ID
+		}
+	}
+
+	if SuggestionChannel == nil {
+		log.Fatalf("Suggestions channel not found")
 	}
 
 	log.Println("Adding commands...")
