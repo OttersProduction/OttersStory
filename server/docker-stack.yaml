@@ -1,0 +1,42 @@
+version: "3"
+services:
+  maplestory:
+    image: docker.io/ottersprod/otters-story:${GIT_COMMIT_HASH:-latest}
+    restart: unless-stopped
+    depends_on:
+      - db
+    deploy:
+      update_config:
+        order: start-first
+
+    ports:
+      - target: 8484
+        published: 8484
+        protocol: tcp
+        mode: host
+
+      - target: 7575
+        published: 7575
+        protocol: tcp
+        mode: host
+      # # Login server
+      # - "8484:8484"
+      # # Channels.
+      # # Format: WWCC, where WW is 75 plus the world number and CC is 75 plus the channel number (both zero indexed).
+      # # In this case, world 1 channel 1.
+      # - "7575-7575:7575-7575"
+    volumes:
+      # Config changes can be reloaded without rebuilding the image.
+      # Still requires a redeployment as they're sourced on startup.
+      - /home/deploy/config.prod.yaml:/opt/server/config.yaml
+
+  db:
+    image: mysql:8.4.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "cosmic"
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+
+    volumes:
+      - /home/deploy/database/sql:/docker-entrypoint-initdb.d
+      - /home/deploy/database/docker-db-data:/var/lib/mysql
