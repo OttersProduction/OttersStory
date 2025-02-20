@@ -8,7 +8,7 @@ docs
 handbook
 sql
 tools
-bots
+
 
 # Created by the db when using docker-compose, large and causes rebuild issues if sent to the context.
 docker-db-data

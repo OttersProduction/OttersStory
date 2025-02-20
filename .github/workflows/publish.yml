@@ -16,18 +16,14 @@ jobs:
       main_changed: ${{ steps.filter.outputs.main }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             bots:
               - 'bots/**'
             main:
-              - '*'
-              - '**/*'
-              - '!bots/**/*'
-              - '!.github/**'
-              - '!*.md'
+              - 'server/**'
 
   build-push-story:
     runs-on: ubuntu-latest
@@ -49,8 +45,8 @@ jobs:
       - name: Build and push Otters Story
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./server
+          file: ./server/Dockerfile
           platforms: linux/amd64
           push: true
           cache-from: type=gha,scope=story
@@ -106,7 +102,7 @@ jobs:
         uses: cssnr/stack-deploy-action@v1
         with:
           name: otterstory
-          file: docker-stack.yaml
+          file: ./server/docker-stack.yaml
           host: ${{ secrets.IP}}
           user: deploy
           ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
