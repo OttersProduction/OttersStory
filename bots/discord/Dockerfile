@@ -41,6 +41,12 @@ else\n\
     echo "No discord token secret found, using existing .env file"\n\
 fi\n\
 \n\
+if [ -f "/run/secrets/openai_key" ]; then\n\
+    echo "OPENAI_API_KEY=$(cat /run/secrets/openai_key)" >> .env\n\
+else\n\
+    echo "No OpenAI API key secret found, using existing .env file"\n\
+fi\n\
+\n\
 exec "$@"\n' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
 
