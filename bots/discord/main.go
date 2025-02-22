@@ -19,6 +19,7 @@ var (
 var s *discordgo.Session
 var SuggestionChannel *string
 var GuildID *string
+var PCPricesChannel *string
 
 func init() { flag.Parse() }
 
@@ -61,12 +62,25 @@ var (
 			Name:        "suggest",
 			Description: "Suggest a new feature or report a bug",
 		},
+		{
+			Name:        "pc",
+			Description: "Get the price of a item",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "prompt",
+					Description: "Prompt to get the price of a item",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"opq-guide": OPQ_GuideCommand,
 		"ht-pt":     HT_PartyCommand,
 		"suggest":   SuggestionCommand,
+		"pc":        PC_Command,
 	}
 )
 
@@ -101,20 +115,6 @@ func init() {
 }
 
 func main() {
-	// client := openai.NewClient(
-	// 	option.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // defaults to os.LookupEnv("OPENAI_API_KEY")
-	// )
-
-	// chatCompletion, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
-	// 	Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-	// 		openai.UserMessage("Price check RC with 12luk 56 WA sells for"),
-	// 	}),
-	// 	Model: openai.F(openai.ChatModelGPT4o),
-	// })
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-	// println(chatCompletion.Choices[0].Message.Content)
 
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
@@ -135,6 +135,9 @@ func main() {
 	for _, channel := range channels {
 		if channel.Name == "suggestions" {
 			SuggestionChannel = &channel.ID
+		}
+		if channel.Name == "💰trade-pc" {
+			PCPricesChannel = &channel.ID
 		}
 	}
 

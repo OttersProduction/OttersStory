@@ -78,3 +78,22 @@ func HandleModalSuggestion(s *discordgo.Session, i *discordgo.InteractionCreate)
 	return err
 
 }
+
+func PC_Command(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+	options := i.ApplicationCommandData().Options
+	prompt := options[0].StringValue()
+	respond, err := GetPrice(prompt)
+
+	if err != nil {
+		log.Printf("Error getting price: %v", err)
+		return
+	}
+
+	_, err = s.ChannelMessageSend(*PCPricesChannel, respond)
+
+	if err != nil {
+		log.Printf("Error sending message: %v", err)
+	}
+
+}
