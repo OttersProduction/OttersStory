@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     secrets:
       - discord_token
+      - openai_key
 
 secrets:
   discord_token:
