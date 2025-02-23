@@ -9,3 +9,5 @@ services:
 secrets:
   discord_token:
     external: true
+  openai_key:
+    external: true
