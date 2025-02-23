@@ -83,14 +83,30 @@ func PC_Command(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	options := i.ApplicationCommandData().Options
 	prompt := options[0].StringValue()
+
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Let me check that for you",
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
+	})
+	if err != nil {
+		log.Printf("Error getting price: %v", err)
+		return
+	}
+
 	respond, err := GetPrice(prompt)
 
 	if err != nil {
 		log.Printf("Error getting price: %v", err)
 		return
 	}
-
-	_, err = s.ChannelMessageSend(*PCPricesChannel, respond)
+	userId := i.Interaction.Member.User.ID
+	_, err = s.ChannelMessageSend(*PCPricesChannel, fmt.Sprintf(`
+	<@%s> was searching for: %s
+	%s
+	`, userId, prompt, respond))
 
 	if err != nil {
 		log.Printf("Error sending message: %v", err)
