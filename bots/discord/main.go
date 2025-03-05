@@ -11,11 +11,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Bot parameters
-var (
-	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
-)
-
 var s *discordgo.Session
 var SuggestionChannel *string
 var GuildID *string
@@ -146,13 +141,11 @@ func main() {
 	}
 
 	log.Println("Adding commands...")
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
-	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+	for _, v := range commands {
+		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		registeredCommands[i] = cmd
 	}
 
 	defer s.Close()
@@ -162,15 +155,19 @@ func main() {
 	log.Println("Press Ctrl+C to exit")
 	<-stop
 
-	if *RemoveCommands {
-		log.Println("Removing commands...")
+	log.Println("Removing commands...")
 
-		for _, v := range registeredCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
-			if err != nil {
-				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
-			}
+	registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+	if err != nil {
+		log.Panicf("Cannot get registered commands: %v", err)
+	}
+
+	for _, v := range registeredCommands {
+		err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+		if err != nil {
+			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 		}
+		log.Printf("Deleted '%v' command", v.Name)
 	}
 
 	log.Println("Gracefully shutting down.")
