@@ -22,12 +22,19 @@ func init() {
 }
 
 func CreateTable() {
-	db.Exec("CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, ign TEXT, timezone TEXT)")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, ign TEXT, timezone TEXT)")
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Println("Table created")
 }
 
 func UpsertUser(id, ign, timezone string) {
-	db.Exec("INSERT OR REPLACE INTO users (id, ign, timezone) VALUES (?, ?, ?)", id, ign, timezone)
+	_, err := db.Exec("INSERT OR REPLACE INTO users (id, ign, timezone) VALUES (?, ?, ?)", id, ign, timezone)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("User upserted")
 }
 
 func GetTimezone(id string) (string, error) {
