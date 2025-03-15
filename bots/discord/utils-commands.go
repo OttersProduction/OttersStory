@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/bwmarrin/discordgo"
 )
