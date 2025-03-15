@@ -32,7 +32,7 @@ COPY --from=builder /app/discord-bot .
 
 # Create a default .env file
 RUN touch .env
-
+RUN touch database.db
 # Create entrypoint script using printf to ensure proper line endings
 RUN printf '#!/bin/sh\n\
 if [ -f "/run/secrets/discord_token" ]; then\n\
