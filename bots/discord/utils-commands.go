@@ -221,10 +221,19 @@ func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) err
 			return err
 		}
 	}
-	err = s.GuildMemberNickname(i.Interaction.GuildID, userid, ign)
+
+	guild, err := s.Guild(i.Interaction.GuildID)
 	if err != nil {
-		log.Printf("Error setting nickname: %v", err)
+		log.Printf("Error getting guild: %v", err)
 		return err
+	}
+
+	if guild.OwnerID != userid {
+		err = s.GuildMemberNickname(i.Interaction.GuildID, userid, ign)
+		if err != nil {
+			log.Printf("Error setting nickname: %v", err)
+			return err
+		}
 	}
 
 	UpsertUser(userid, ign, location.String())
