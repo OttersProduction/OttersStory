@@ -16,11 +16,14 @@ func init() {
 		log.Fatal(err)
 	}
 
+	log.Println("Database connected", db.Stats())
+
 	CreateTable()
 }
 
 func CreateTable() {
 	db.Exec("CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, ign TEXT, timezone TEXT)")
+	log.Println("Table created")
 }
 
 func UpsertUser(id, ign, timezone string) {
