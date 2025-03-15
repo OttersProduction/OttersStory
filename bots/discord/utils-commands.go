@@ -160,17 +160,6 @@ func VerifyCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) error {
 
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: "Thank you for verifying your ign and timezone",
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-
 	data := i.ModalSubmitData()
 	ign := data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
 	timezone := data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
@@ -238,6 +227,17 @@ func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) err
 	}
 
 	UpsertUser(userid, ign, location.String())
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Thank you for verifying your ign and timezone",
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
