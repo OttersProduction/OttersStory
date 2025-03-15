@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -111,5 +112,187 @@ func PC_Command(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err != nil {
 		log.Printf("Error sending message: %v", err)
 	}
+
+}
+
+func VerifyCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseModal,
+		Data: &discordgo.InteractionResponseData{
+			CustomID: "modals_verify_" + i.Interaction.Member.User.ID,
+			Title:    "Verify",
+			Components: []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						discordgo.TextInput{
+							CustomID:    "ign",
+							Label:       "IGN",
+							Style:       discordgo.TextInputShort,
+							Placeholder: "Enter your IGN",
+							Required:    true,
+							MaxLength:   20,
+							MinLength:   2,
+						},
+					},
+				},
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						discordgo.TextInput{
+							CustomID:    "timezone",
+							Label:       "Timezone",
+							Style:       discordgo.TextInputShort,
+							Placeholder: "Enter your timezone",
+							Required:    true,
+							MaxLength:   30,
+							MinLength:   2,
+						},
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		log.Printf("Error sending modal: %v", err)
+	}
+}
+
+func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) error {
+
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Thank you for verifying your ign and timezone",
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	data := i.ModalSubmitData()
+	ign := data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
+	timezone := data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
+	userid := strings.Split(data.CustomID, "_")[2]
+
+	location, err := time.LoadLocation(timezone)
+	if err != nil {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Timezone is invalid, please verify your timezone using /verify list of timezones https://github.com/Lewington-pitsos/golang-time-locations",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
+		})
+		return err
+	}
+	roles, err := s.GuildRoles(i.Interaction.GuildID)
+	if err != nil {
+		log.Printf("Error getting roles: %v", err)
+		return err
+	}
+	var unverifiedRole string
+	var babyOtterRole string
+	var isVerified = true
+
+	for _, role := range roles {
+		if role.Name == "unverified" {
+			unverifiedRole = role.ID
+		}
+		if role.Name == "Baby Otter" {
+			babyOtterRole = role.ID
+		}
+	}
+
+	user, err := s.GuildMember(i.Interaction.GuildID, userid)
+	if err != nil {
+		log.Printf("Error getting user: %v", err)
+		return err
+	}
+
+	userRoles := user.Roles
+
+	for _, role := range userRoles {
+		if role == unverifiedRole {
+			isVerified = false
+		}
+	}
+
+	if !isVerified {
+		err = s.GuildMemberRoleAdd(i.Interaction.GuildID, userid, babyOtterRole)
+		if err != nil {
+			log.Printf("Error adding role: %v", err)
+			return err
+		}
+		err = s.GuildMemberRoleRemove(i.Interaction.GuildID, userid, unverifiedRole)
+		if err != nil {
+			log.Printf("Error removing role: %v", err)
+			return err
+		}
+	}
+	err = s.GuildMemberNickname(i.Interaction.GuildID, userid, ign)
+	if err != nil {
+		log.Printf("Error setting nickname: %v", err)
+		return err
+	}
+
+	UpsertUser(userid, ign, location.String())
+	return nil
+
+}
+
+func TimeCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+	options := i.ApplicationCommandData().Options
+	now := time.Now()
+	user := i.Interaction.Member.User
+	if len(options) != 0 {
+		user = options[0].UserValue(s)
+	}
+
+	userTimezone, err := GetTimezone(user.ID)
+	if err != nil {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "User doesn't have a timezone set, user need to /verify",
+			},
+		})
+		return
+	}
+
+	location, err := time.LoadLocation(userTimezone)
+	if err != nil {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintf("User timezone (%s) is invalid, reverify your timezone using /verify list of timezones https://github.com/Lewington-pitsos/golang-time-locations", userTimezone),
+			},
+		})
+		return
+	}
+
+	member, err := s.GuildMember(i.Interaction.GuildID, user.ID)
+	if err != nil {
+		log.Printf("Error getting member: %v", err)
+		return
+	}
+
+	if member.Nick == "" {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintf("%s's current time is %s", user.GlobalName, now.In(location).Format("15:04")),
+			},
+		})
+		return
+	}
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: fmt.Sprintf("%s's current time is %s", member.Nick, now.In(location).Format("15:04")),
+		},
+	})
 
 }

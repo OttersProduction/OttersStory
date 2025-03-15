@@ -69,6 +69,22 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "verify",
+			Description: "Verify your ign and timezone",
+		},
+		{
+			Name:        "time",
+			Description: "Get user current time",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User to show its current time",
+					Required:    false,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -76,6 +92,8 @@ var (
 		"ht-pt":     HT_PartyCommand,
 		"suggest":   SuggestionCommand,
 		"pc":        PC_Command,
+		"verify":    VerifyCommand,
+		"time":      TimeCommand,
 	}
 )
 
@@ -97,16 +115,15 @@ func init() {
 				}
 			}
 
+			if strings.HasPrefix(data.CustomID, "modals_verify") {
+				err := HandleModalVerify(s, i)
+				if err != nil {
+					log.Printf("Error handling modal verify: %v", err)
+				}
+			}
 		}
 	})
 
-	// ok, err := DownloadPCSheet()
-	// if err != nil {
-	// 	log.Fatalf("Error downloading PC sheet: %v", err)
-	// }
-	// if ok {
-	// 	log.Println("PC sheet downloaded successfully")
-	// }
 }
 
 func main() {
