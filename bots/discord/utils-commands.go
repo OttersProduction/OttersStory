@@ -256,17 +256,28 @@ func TimeCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	options := i.ApplicationCommandData().Options
 	now := time.Now()
-	user := i.Interaction.Member.User
+	member := i.Interaction.Member
 	if len(options) != 0 {
-		user = options[0].UserValue(s)
+		var err error
+		user := options[0].UserValue(s)
+		member, err = s.GuildMember(i.Interaction.GuildID, user.ID)
+		if err != nil {
+			log.Printf("Error getting member: %v", err)
+			return
+		}
 	}
 
-	userTimezone, err := GetTimezone(user.ID)
+	nickname := member.Nick
+	if nickname == "" {
+		nickname = member.User.Username
+	}
+
+	userTimezone, err := GetTimezone(member.User.ID)
 	if err != nil {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf("<@%s> doesn't have a timezone set, user need to /verify", user.ID),
+				Content: fmt.Sprintf("%s doesn't have a timezone set, %s need to /verify", nickname, nickname),
 			},
 		})
 		return
@@ -277,7 +288,7 @@ func TimeCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf("<@%s>'s timezone (%s) is invalid, reverify your timezone using /verify list of timezones https://github.com/Lewington-pitsos/golang-time-locations", user.ID, userTimezone),
+				Content: fmt.Sprintf("%s's timezone (%s) is invalid, %s need to reverify their timezone using /verify list of timezones https://github.com/Lewington-pitsos/golang-time-locations", nickname, userTimezone, nickname),
 			},
 		})
 		return
@@ -286,7 +297,7 @@ func TimeCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf("<@%s>'s current time is %s", user.ID, now.In(location).Format("15:04")),
+			Content: fmt.Sprintf("%s's current time is %s", nickname, now.In(location).Format("15:04")),
 		},
 	})
 
