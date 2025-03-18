@@ -15,7 +15,7 @@ func SmickCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf("OMG <@%s> just smicked <@%s>, such savage what will be done????", i.Interaction.User.ID, smickedUser.ID),
+			Content: fmt.Sprintf("OMG <@%s> just smicked <@%s>, such savage what will be done????", i.Interaction.Member.User.ID, smickedUser.ID),
 		},
 	})
 
