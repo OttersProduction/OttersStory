@@ -85,6 +85,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "smick",
+			Description: "Smick a user",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User to smick",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -94,6 +106,7 @@ var (
 		"pc":        PC_Command,
 		"verify":    VerifyCommand,
 		"time":      TimeCommand,
+		"smick":     SmickCommand,
 	}
 )
 
