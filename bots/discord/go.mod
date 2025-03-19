@@ -1,4 +1,4 @@
-module discord-bot
+module github.com/ottersproduction/ottersstory/bots/discord
 
 go 1.22.7
 

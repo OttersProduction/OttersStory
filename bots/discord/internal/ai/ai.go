@@ -1,13 +1,11 @@
-package main
+package ai
 
 import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -15,17 +13,7 @@ var threadID *string
 var client *openai.Client
 var ctx context.Context
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	// Check if API key exists
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
-		log.Fatal("OPENAI_API_KEY environment variable is not set")
-	}
+func Create(apiKey string) {
 
 	ctx = context.Background()
 	client = openai.NewClient(apiKey)

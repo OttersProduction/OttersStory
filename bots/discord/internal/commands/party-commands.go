@@ -1,16 +1,17 @@
-package main
+package commands
 
 import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	dates "github.com/ottersproduction/ottersstory/bots/discord/internal/utils"
 )
 
 func HT_PartyCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	options := i.ApplicationCommandData().Options
 	input := options[0].StringValue()
-	startTime, err := DateFromDayMonth(input)
+	startTime, err := dates.DateFromDayMonth(input)
 
 	if err != nil {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{

@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"fmt"
@@ -8,6 +8,9 @@ import (
 	_ "time/tzdata"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/ottersproduction/ottersstory/bots/discord/internal/ai"
+	"github.com/ottersproduction/ottersstory/bots/discord/internal/database"
+	"github.com/ottersproduction/ottersstory/bots/discord/internal/utils"
 )
 
 func SuggestionCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -68,7 +71,7 @@ func HandleModalSuggestion(s *discordgo.Session, i *discordgo.InteractionCreate)
 	title := data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
 	description := data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
 	userid := strings.Split(data.CustomID, "_")[2]
-	_, err = s.ChannelMessageSend(*SuggestionChannel, fmt.Sprintf(
+	_, err = s.ChannelMessageSend(*utils.SuggestionChannel, fmt.Sprintf(
 		`**Suggestion: %s**
 		Author: <@%s>
 		Description: %s`,
@@ -98,14 +101,14 @@ func PC_Command(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	respond, err := GetPrice(prompt)
+	respond, err := ai.GetPrice(prompt)
 
 	if err != nil {
 		log.Printf("Error getting price: %v", err)
 		return
 	}
 	userId := i.Interaction.Member.User.ID
-	_, err = s.ChannelMessageSend(*PCPricesChannel, fmt.Sprintf(`
+	_, err = s.ChannelMessageSend(*utils.PCPricesChannel, fmt.Sprintf(`
 	<@%s> was searching for: %s
 	%s
 	`, userId, prompt, respond))
@@ -236,7 +239,7 @@ func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) err
 		}
 	}
 
-	UpsertUser(userid, ign, location.String())
+	database.UpsertUser(userid, ign, location.String())
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -272,7 +275,7 @@ func TimeCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		nickname = member.User.Username
 	}
 
-	userTimezone, err := GetTimezone(member.User.ID)
+	userTimezone, err := database.GetTimezone(member.User.ID)
 	if err != nil {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
