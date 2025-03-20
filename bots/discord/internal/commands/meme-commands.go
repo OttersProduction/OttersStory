@@ -12,7 +12,7 @@ var smickResponses = []string{
 	"OMG <@%s> just smicked <@%s>, such savage what will be done????",
 	"<@%s> just smicked the shit outta <@%s>",
 	"<@%s> trying to smick <@%s>, but he to weak >_>",
-	"<@%s> omg you just smicked <@%s>, why i thought you where friends",
+	"<@%s> omg you just smicked <@%s>, why i thought you were friends",
 	"<@%s> smicked <@%s>, such smick, much wow",
 	"<@%s> smicked that :wave: <@%s>",
 	"<@%s> smicked <@%s>, why.... i dont get it....",
