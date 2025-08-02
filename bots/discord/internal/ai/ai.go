@@ -20,6 +20,9 @@ func Create(apiKey string) {
 	config := openai.DefaultConfig(apiKey)
 	config.BaseURL = "https://openrouter.ai/api/v1"
 	client = openai.NewClientWithConfig(config)
+
+	fmt.Println("OpenAI client created, key: ", "...."+apiKey[len(apiKey)-5:])
+
 }
 
 // getRelevantCSV uses AI to determine which CSV file is most relevant to the prompt
