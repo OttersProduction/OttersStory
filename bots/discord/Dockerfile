@@ -30,6 +30,10 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/discord-bot .
 
+# Copy CSV data files
+RUN mkdir -p ./data
+COPY internal/ai/data/*.csv ./data/
+
 # Create a default .env file
 RUN touch .env
 RUN touch database.db
