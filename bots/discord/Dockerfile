@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=1 GOOS=linux go build -o discord-bot
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o discord-bot -ldflags="-w -s"
 
 # Final stage
 FROM alpine:latest
@@ -30,6 +30,9 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/discord-bot .
 
+# Make sure the binary is executable
+RUN chmod +x discord-bot
+
 # Copy CSV data files
 RUN mkdir -p ./data
 COPY internal/ai/data/*.csv ./data/
@@ -37,8 +40,16 @@ COPY internal/ai/data/*.csv ./data/
 # Create a default .env file
 RUN touch .env
 RUN touch database.db
+
 # Create entrypoint script using printf to ensure proper line endings
 RUN printf '#!/bin/sh\n\
+set -e\n\
+\n\
+echo "Starting Discord bot..."\n\
+echo "Current directory: $(pwd)"\n\
+echo "Files in current directory:"\n\
+ls -la\n\
+\n\
 if [ -f "/run/secrets/discord_token" ]; then\n\
     echo "DISCORD_TOKEN=$(cat /run/secrets/discord_token)" > .env\n\
 else\n\
@@ -50,6 +61,9 @@ if [ -f "/run/secrets/openai_key" ]; then\n\
 else\n\
     echo "No OpenAI API key secret found, using existing .env file"\n\
 fi\n\
+\n\
+echo "Checking if discord-bot exists and is executable:"\n\
+ls -la discord-bot\n\
 \n\
 exec "$@"\n' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
