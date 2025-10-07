@@ -121,11 +121,54 @@ func PC_Command(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 func VerifyCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
+	// Get popular timezones for better UX
+	popularTimezones := utils.GetPopularTimezones()
+
+	// Create timezone options for the select menu
+	var timezoneOptions []discordgo.SelectMenuOption
+	for _, tz := range popularTimezones {
+		timezoneOptions = append(timezoneOptions, discordgo.SelectMenuOption{
+			Label:       utils.GetTimezoneDisplayName(tz),
+			Value:       tz,
+			Description: tz,
+		})
+	}
+
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Please select your timezone:",
+			Flags:   discordgo.MessageFlagsEphemeral,
+			Components: []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						discordgo.SelectMenu{
+							CustomID:    "timezone_select_" + i.Interaction.Member.User.ID,
+							Placeholder: "Select your timezone",
+							Options:     timezoneOptions,
+						},
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		log.Printf("Error sending timezone selection: %v", err)
+	}
+}
+
+func HandleTimezoneSelect(s *discordgo.Session, i *discordgo.InteractionCreate) error {
+	data := i.MessageComponentData()
+	timezone := data.Values[0]
+	userid := strings.Split(data.CustomID, "_")[2]
+
+	// Now show the IGN input modal
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseModal,
 		Data: &discordgo.InteractionResponseData{
-			CustomID: "modals_verify_" + i.Interaction.Member.User.ID,
-			Title:    "Verify",
+			CustomID: "modals_verify_" + userid + "_" + timezone,
+			Title:    "Verify - Enter IGN",
 			Components: []discordgo.MessageComponent{
 				discordgo.ActionsRow{
 					Components: []discordgo.MessageComponent{
@@ -140,34 +183,21 @@ func VerifyCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 						},
 					},
 				},
-				discordgo.ActionsRow{
-					Components: []discordgo.MessageComponent{
-						discordgo.TextInput{
-							CustomID:    "timezone",
-							Label:       "Timezone",
-							Style:       discordgo.TextInputShort,
-							Placeholder: "Enter your timezone",
-							Required:    true,
-							MaxLength:   30,
-							MinLength:   2,
-						},
-					},
-				},
 			},
 		},
 	})
 
-	if err != nil {
-		log.Printf("Error sending modal: %v", err)
-	}
+	return err
 }
 
 func HandleModalVerify(s *discordgo.Session, i *discordgo.InteractionCreate) error {
 
 	data := i.ModalSubmitData()
 	ign := data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
-	timezone := data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
-	userid := strings.Split(data.CustomID, "_")[2]
+	// Extract timezone and userid from CustomID: "modals_verify_userid_timezone"
+	parts := strings.Split(data.CustomID, "_")
+	userid := parts[2]
+	timezone := parts[3]
 
 	location, err := time.LoadLocation(timezone)
 	if err != nil {

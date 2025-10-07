@@ -26,6 +26,15 @@ func Start(token string) *discordgo.Session {
 			if h, ok := commands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
 			}
+		case discordgo.InteractionMessageComponent:
+			data := i.MessageComponentData()
+
+			if strings.HasPrefix(data.CustomID, "timezone_select") {
+				err := commands.HandleTimezoneSelect(s, i)
+				if err != nil {
+					log.Printf("Error handling timezone select: %v", err)
+				}
+			}
 		case discordgo.InteractionModalSubmit:
 			data := i.ModalSubmitData()
 

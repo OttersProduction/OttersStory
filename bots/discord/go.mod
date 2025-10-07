@@ -5,7 +5,7 @@ go 1.22.7
 toolchain go1.23.6
 
 require (
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/sashabaranov/go-openai v1.37.0
