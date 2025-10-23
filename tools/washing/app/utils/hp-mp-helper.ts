@@ -7,6 +7,7 @@ export const getMinimumMP = (job: Job, level: number) => {
     case Job.NIGHT_LORD:
     case Job.SHADOWER:
     case Job.MARKSMAN:
+    case Job.BOWMASTER:
       return Math.floor(14 * level + 148);
 
     case Job.CORSAIR:
