@@ -12,19 +12,19 @@
 
 ### 1.2 Data Models & Types
 
-- [ ] **Task 1.2.1**: Create Character interface with all required properties
+- [x] **Task 1.2.1**: Create Character interface with all required properties
 - [ ] **Task 1.2.2**: Create OptimizationPlan interface for calculation results
-- [ ] **Task 1.2.3**: Create CostOptimization interface for cost breakdowns
+- [x] **Task 1.2.3**: Create CostOptimization interface for cost breakdowns
 - [x] **Task 1.2.4**: Create Job enum with all classes and their properties
 - [x] **Task 1.2.5**: Create OptimizationRatio interface for class-specific ratios
 
 ### 1.3 Core Optimization Engine
 
 - [ ] **Task 1.3.1**: Implement base INT optimization algorithm
-- [x] **Task 1.3.2**: Implement MP generation optimization based on INT
+- [ ] **Task 1.3.2**: Implement MP generation optimization based on INT
 - [ ] **Task 1.3.3**: Implement cost minimization algorithms
-- [x] **Task 1.3.4**: Implement class-specific optimization ratios
-- [x] **Task 1.3.5**: Implement constraint handling (minimum MP, level limits)
+- [ ] **Task 1.3.4**: Implement class-specific optimization ratios
+- [ ] **Task 1.3.5**: Implement constraint handling (minimum MP, level limits)
 
 ### 1.4 Optimization UI Components
 
