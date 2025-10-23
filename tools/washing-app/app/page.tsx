@@ -1,5 +1,7 @@
-import { Button } from "@/components/ui/button";
+"use client";
 
 export default function Home() {
-  return <div className="flex min-h-screen items-center justify-center"></div>;
+  return (
+    <div className="flex min-h-screen items-center justify-center p-8"></div>
+  );
 }
