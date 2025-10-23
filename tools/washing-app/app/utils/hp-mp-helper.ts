@@ -1,4 +1,4 @@
-import { Job, THIEF, WARRIOR } from "@/app/models/job";
+import { Job, WARRIOR } from "@/app/models/job";
 import { clamp } from "@/app/utils/math";
 import { HPQuest } from "../models/hp-quest";
 
