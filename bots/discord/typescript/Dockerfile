@@ -58,4 +58,4 @@ exec "$@"\n' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["node", "dist/index.js"]
+CMD ["npm", "start"]
