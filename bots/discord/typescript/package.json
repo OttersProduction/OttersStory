@@ -4,8 +4,8 @@
   "description": "TypeScript Discord bot for OttersStory",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/index.js",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/index.js",
     "dev": "ts-node -r tsconfig-paths/register src/index.ts",
     "dev:watch": "nodemon --exec \"ts-node -r tsconfig-paths/register src/index.ts\""
   },
@@ -31,6 +31,7 @@
     "@types/sqlite3": "^3.1.11",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.3.2"
   }
 }
