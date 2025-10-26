@@ -1,0 +1,36 @@
+{
+  "name": "otters-discord-bot",
+  "version": "1.0.0",
+  "description": "TypeScript Discord bot for OttersStory",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node -r tsconfig-paths/register dist/index.js",
+    "dev": "ts-node -r tsconfig-paths/register src/index.ts",
+    "dev:watch": "nodemon --exec \"ts-node -r tsconfig-paths/register src/index.ts\""
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "typescript"
+  ],
+  "author": "OttersProduction",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/voice": "^0.19.0",
+    "@elevenlabs/elevenlabs-js": "^2.20.1",
+    "@snazzah/davey": "^0.1.7",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.23",
+    "@types/sqlite3": "^3.1.11",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.2"
+  }
+}
