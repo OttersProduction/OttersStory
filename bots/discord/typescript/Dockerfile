@@ -20,7 +20,7 @@ RUN npm run build
 FROM node:18-alpine
 
 # Install necessary packages
-RUN apk add --no-cache sqlite3 ffmpeg
+RUN apk add --no-cache sqlite ffmpeg
 
 WORKDIR /app
 
