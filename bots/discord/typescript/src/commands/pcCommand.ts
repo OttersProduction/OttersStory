@@ -9,7 +9,14 @@ export class PCCommand {
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: process.env.OPENROUTER_API_KEY,
+      defaultHeaders: {
+        "HTTP-Referer":
+          process.env.APP_URL ||
+          "https://github.com/OttersProduction/OttersStory",
+        "X-Title": "OttersStory Discord Bot",
+      },
     });
   }
 
@@ -25,7 +32,7 @@ export class PCCommand {
       await interaction.deferReply();
 
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "google/gemini-2.0-flash-exp:free",
         messages: [
           {
             role: "system",
@@ -49,7 +56,7 @@ export class PCCommand {
         content: `**Price Check Result:**\n${response}`,
       });
     } catch (error) {
-      console.error("Error with OpenAI API:", error);
+      console.error("Error with OpenRouter API:", error);
       await interaction.editReply({
         content:
           "Sorry, I encountered an error while processing your price check request.",
