@@ -27,7 +27,7 @@ export const getMinimumMP = (job: Job, level: number) => {
   }
 };
 
-export const getMP = (job: Job, level: number) => {
+export const getMP = (job: Job, level: number, int: number = 4) => {
   let bonusMP = 11;
   if (Job.BEGINNER === job) {
     return 5 + (clamp(level, 1, 200) - 1) * bonusMP;
@@ -57,6 +57,8 @@ export const getMP = (job: Job, level: number) => {
       bonusMP = 23;
       break;
   }
+
+  bonusMP += Math.floor(int / 10);
 
   if (job === Job.MAGICIAN) {
     let mageMP = firstJobMP + (clamp(level, 11, 14) - 1) * bonusMP;

@@ -1,3 +1,14 @@
+Table of Contents
+Introduction
+Do I need to Wash?
+Terminology
+Basics
+MP Washing
+Thief Washing
+SP Reset Weirdness
+TL; DR
+FAQs
+
 What is Washing/Introduction
 Washing is a method of getting additional MaxHP in Royals (and many other oldschool servers) witout losing damage, based on adding AP to int, using that to generate MP, and turning MP into HP. It's done since many bosses deal very high damage, which would leave some classes entirely unable to survive naturally. However, it tends to be expensive and poorly understood, which can increase total washing costs and frustrate or confuse players.
 
@@ -81,96 +92,7 @@ So for thieves, instead of recycling the same AP by repeatedly removing from MP 
 
 Spoiler: Pop Quiz
 SP Reset Weirdness
-Please see my Washing for Mages thread, infinite washing section. This also applies to warriors and buccaneers with their Improved MaxHP increase skill, although they really shouldn't need it with high natural HP and the existence of HP quests. The basic gist is that improved MaxHP/MP increase applies to reset ap, both adding and removing. This lets you SP reset the skill to 0 when removing, and to 10 when adding to create a difference in the HP or MP gained and los
+Please see my Washing for Mages thread, infinite washing section. This also applies to warriors and buccaneers with their Improved MaxHP increase skill, although they really shouldn't need it with high natural HP and the existence of HP quests. The basic gist is that improved MaxHP/MP increase applies to reset ap, both adding and removing. This lets you SP reset the skill to 0 when removing, and to 10 when adding to create a difference in the HP or MP gained and lost.
 
-### Washing for Mages thread
-
-Do I need to wash? What should I wash to?
-Ultimately, mages who want to participate in endgame content should wash some. I recommend having 5-10k total HP for Horntail (depending how lazy you want to be with magic guard), 8.5-9k HP for Von Leon, and I'm actually not sure for Auf since I was 15k+ when I started running.
-If you're NOT interested in running HT (as a seller, buyers can go with ~2.5k), VL, or Auf, HP washing is entirely unnecessary, although mp washing can be helpful to reduce potion usage while keeping mana at safe levels for MG. Keep in mind that Fire/Poison and Ice/Lightning mages don't get invited to these bosses, leaving HP washing mostly done by Bishops.
-
-MP is very much worth it to get to 30k; it's just nice to have MP and the extra cost isn't too high.
-
-Anything past 10k HP I don't think is worth it. While I personally did get 30k HP 30k MP, the cost for that is extremely expensive and most players would be better off investing in gear instead of extra HP that doesn't really do anything.
-
-Non-washing HP Sources:
-There's a few other ways you can get HP without washing! Since you're a mage, each HP is much more impactful due to Magic Guard.
-Ellinia HP Quest: 250 HP, 1 set ~180m
-Legendary Collector OR Quest Virtuoso Medal: 1000 HP or 300 HP
-Black Belt: 500 HP
-Pet Equips: 200/pet is reasonable, and you can have 3 pets, for 600 total
-Valentine's Day Ring: It's not BiS for mages but still quite strong, and gives 150 HP
-These total up to 2.5k HP, or 167 APRs (+ a few extra to get more MP)! That's significant savings.
-
-Sadly, Olaf's Adventurer assignment gives mages MP instead of HP, and Reuel's Elixir of Life HP quest (daily hp quest) is not available for mages.
-
-General Washing
-Washing mages, like all classes, generally happens in 2 stages. If you run out of MP, you can just restart at stage 1 though, unlike other classes who reset their base int!
-I recommend starting washing no earlier than level 130, as this gives you lots of base int for good gains, and by this time you should be able to sell leech to fund your washing. If you have specific goals such as capping yourself at a low level or want 30/30, you might need to start washing earlier.
-
-Stage 1: Get a lot of MP
-MP is very easy to get for mages - our main stat is int, meaning we naturally get a lot of extra MP on leveling up, and we also have this neat skill to get even more MP:
-upload_2023-6-12_14-55-39.png
-However, mages generally need a lot more MP than other classes, having the worst washing ratio of any class (+15 HP for -20 MP - the only class where you get less HP gained than MP lost).
-
-Since leveling alone won't provide you with enough MP, there's 2 ways to get extra, both using fresh AP from leveling up:
-
-Option 1:
-Regular MP washing. When you level up, put all 5 AP into MP, then immediately use 5 AP resets to -MP +int. This option is good if you're still low level and trying to hit new TMA breakpoints.
-
-Option 2:
-Delayed MP washing. This method is slightly more expensive per MP, but has a couple advantages:
-If you're going to be HP washing anyways, doing a delayed wash before is free (the extra cost of SP resets for the delayed wash would be paid anyways when HP washing)
-It gets you more MP per level, so if you don't have enough level ups to meet your goals, it'll reduce the amount of infinite washing you need to do. And infinite washing is extremely expensive.
-When you level up, put all 5 AP into MP, and keep it there. Keep leveling and adding AP to MP until you've put 10 levels (50 AP) in. Note: the optimal amount is actually 11-12 levels, but 10 isn't too far off and makes remembering much easier.
-
-After you've added all 50 AP to MP, use 10x 1st Job SP Resets to set Improved MaxMP Increase to 0. Then, use 50 AP Resets to -MP +Int. Finally, use another 10x 1st Job SP Resets to bring MaxMP Increase back to 10.
-
-Since you've set MaxMP increase to 0 when removing MP, you're gaining an extra 10 MP per APR used, or 500 MP per 10 levels extra.
-
-Note: 10 levels of MP added can give as much as 7.5k MP. Make sure you lower your MP enough to not hit 30k MP when doing this, as any MP that would be gained after 30k is wasted.
-
-Stage 2: Turn MP into HP
-Once you have enough MP, it's time to turn it into HP. If anyone tells you to add AP directly to HP you can ignore any advice they ever give you about washing again: Adding fresh AP to HP gives you ~8 HP, while resetting AP gives you 15 average.
-
-When washing into HP, make sure Improved MaxMP Increase is reset to level 0:
-upload_2023-6-12_15-8-26.png
-I'd recommend doing this during a delayed wash - after resetting MaxMP increase, use 49 APRs to -MP +int, then wash to HP, then use 1 final APR to -MP +int again.
-
-Once it's level 0, all you need to do is use a ton of APRs doing -MP +HP. Keep in mind this requires having at least 1 AP in HP/MP. If both arrows are grayed out in the AP Reset like this, that means you have 0 points in HP/MP, and need to either put a fresh AP into MP or AP reset from int/luk into HP
-upload_2023-6-12_15-10-53.png
-
-Each APR removes 20 MP (30 if you didn't set MaxMP increase to 0, which makes it significantly more expensive) and gives 10-20 (15 average) HP. Keep using APRs until you hit your target HP goal or get too low on MP. I personally like to stay above 20k MP, so as soon as I get down to that I stop washing.
-
-Remember to set Improved MaxMP Increase back to 10 after finishing!
-
-Infinite Washing
-Level 200 and sad that you missed your chance to wash? Want to wash further than what your remaining fresh AP you'll earn allows? Time to abuse this MaxMP increase skill even more than we already have been!
-
-Infinite washing is a way of using Improved MaxMP Increase (1st job skill) to gain more HP and MP, without leveling. All it takes is ridiculous amounts of APRs - 1 apr gives ~7.8 MP.
-
-Step 0:
-Make sure you have at least 1 AP in HP or MP. If you don't, and don't have fresh AP, use an AP reset to -int (or luk) and +HP.
-
-Step 1:
-Reset MaxMP Increase to 0 using 10 1st job SP Resets
-
-Step 2:
-Use AP Resets to -MP +HP. Each APR will remove 20 MP and give 15 HP. Keep using them until you're close to 30k HP, or hit the lowest you're willing to have your MP go (for me, that's 20k MP)
-
-Step 3:
-Reset MaxMP Increase back to 10 using 10 1st job SP Resets
-
-Step 4:
-Use AP Resets to -HP +MP. Each APR will remove 10 HP and give 29 MP. Keep using them until you're close to 30k MP, or hit the lowest you're willing to have your HP go.
-
-Step 5:
-If you want more HP/MP, go to Step 1
-
-Step 6:
-Use 1 final AP reset and -MP (or HP) to get that int/luk back.
-
-Estimated Costs
-Since AP resets give you 15 HP for ever 20 MP lost, 1 HP = 20/15 = = 1.333... MP.
-
-In total, ignoring 1st job SP reset cost as that's relatively minor compared to the rest, you use 2 AP resets (-MP +HP and -HP +MP) to gain 5 HP and 9 MP. 5 HP \* 1.33... MP/HP = 6.66... MP, or 2 APRs = 15.66... MP, meaning 1 APR gains you 7.833... MP. You can use this, along with your current HP/MP from your goal, to estimate how much more you need to wash
+tl;dr
+Head hurt from all the text? Here's a summary of HP washing condensed into 3 sentences, although you might be missing important mechanics that could save you meso: Add int to get big MP. Turn big MP into big HP with lots of AP resets. Use more AP resets to turn int into useful stat

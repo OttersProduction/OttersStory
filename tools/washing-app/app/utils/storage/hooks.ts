@@ -145,11 +145,7 @@ export const useTheme = () => {
  * Hook to check if preferences are stored
  */
 export const useStoredPreferences = () => {
-  const [hasStored, setHasStored] = useState<boolean>(false);
-
-  useEffect(() => {
-    setHasStored(hasStoredPreferences());
-  }, []);
+  const [hasStored] = useState<boolean>(() => hasStoredPreferences());
 
   return hasStored;
 };
