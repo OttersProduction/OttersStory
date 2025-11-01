@@ -82,7 +82,7 @@ export const getHP = (job: Job, level: number) => {
   }
 
   let bonusHP = 22;
-  let advancmentBonusHP = getAdvancementBonusHP(job, level);
+  const advancementBonusHP = getAdvancementBonusHP(job, level);
   switch (job) {
     case Job.NIGHT_LORD:
     case Job.SHADOWER:
@@ -109,10 +109,12 @@ export const getHP = (job: Job, level: number) => {
     if (level > 14) {
       warriorHP = warriorHP + (clamp(level, 15, 200) - 1) * (bonusHP + 40);
     }
-    return warriorHP + advancmentBonusHP;
+    return warriorHP + advancementBonusHP;
   }
 
-  return firstJobHP + (clamp(level, 11, 200) - 1) * bonusHP + advancmentBonusHP;
+  return (
+    firstJobHP + (clamp(level, 11, 200) - 1) * bonusHP + advancementBonusHP
+  );
 };
 
 export const getAdvancementBonusHP = (job: Job, level: number) => {
@@ -133,51 +135,41 @@ export const getAdvancementBonusHP = (job: Job, level: number) => {
 };
 
 export const getQuestHP = (quests: HPQuest[], job: Job, level: number) => {
+  // Quest requirements lookup: [minLevel, HP value or function]
+  const questRequirements: Record<
+    HPQuest,
+    [number, number | ((job: Job) => number)]
+  > = {
+    [HPQuest.WaterSpring]: [
+      70,
+      (job: Job) =>
+        WARRIOR.includes(job) ? 1_000 : job === Job.MAGICIAN ? 250 : 500,
+    ],
+    [HPQuest.Olaf1]: [20, 200],
+    [HPQuest.Olaf2]: [40, 225],
+    [HPQuest.Olaf3]: [60, 250],
+    [HPQuest.Olaf4]: [80, 275],
+    [HPQuest.Olaf5]: [100, 300],
+    [HPQuest.Olaf6]: [120, 350],
+    [HPQuest.Olaf7]: [140, 400],
+    [HPQuest.Olaf8]: [160, 450],
+    [HPQuest.Olaf9]: [180, 550],
+    [HPQuest.Olaf10]: [200, 0], // Placeholder if needed
+    [HPQuest.ElixerOfLife]: [200, 0], // Placeholder if needed
+  };
+
   const breakdown = quests.reduce((acc, quest) => {
-    if (quest === HPQuest.WaterSpring && level >= 70) {
-      acc = {
-        ...acc,
-        [HPQuest.WaterSpring]: WARRIOR.includes(job)
-          ? 1_000
-          : job === Job.MAGICIAN
-          ? 250
-          : 500,
-      };
-    }
-    if (quests.includes(HPQuest.Olaf1) && level >= 20) {
-      acc = { ...acc, [HPQuest.Olaf1]: 200 };
-    }
-    if (quests.includes(HPQuest.Olaf2) && level >= 40) {
-      acc = { ...acc, [HPQuest.Olaf2]: 225 };
-    }
-    if (quests.includes(HPQuest.Olaf3) && level >= 60) {
-      acc = { ...acc, [HPQuest.Olaf3]: 250 };
-    }
-    if (quests.includes(HPQuest.Olaf4) && level >= 80) {
-      acc = { ...acc, [HPQuest.Olaf4]: 275 };
-    }
-    if (quests.includes(HPQuest.Olaf5) && level >= 100) {
-      acc = { ...acc, [HPQuest.Olaf5]: 300 };
-    }
-    if (quests.includes(HPQuest.Olaf6) && level >= 120) {
-      acc = { ...acc, [HPQuest.Olaf1]: 350 };
-    }
-    if (quests.includes(HPQuest.Olaf7) && level >= 140) {
-      acc = { ...acc, [HPQuest.Olaf7]: 400 };
-    }
-    if (quests.includes(HPQuest.Olaf8) && level >= 160) {
-      acc = { ...acc, [HPQuest.Olaf8]: 450 };
-    }
-    if (quests.includes(HPQuest.Olaf9) && level >= 180) {
-      acc = { ...acc, [HPQuest.Olaf9]: 550 };
-    }
-    return acc;
+    const requirement = questRequirements[quest];
+    if (!requirement) return acc;
+
+    const [minLevel, hpValue] = requirement;
+    if (level < minLevel) return acc;
+
+    const hp = typeof hpValue === "function" ? hpValue(job) : hpValue;
+    return { ...acc, [quest]: hp };
   }, {} as Record<HPQuest, number>);
 
-  const total_hp = Object.values(breakdown).reduce(
-    (acc, prev) => (acc += prev),
-    0
-  );
+  const total_hp = Object.values(breakdown).reduce((acc, hp) => acc + hp, 0);
 
   return { total_hp, breakdown };
 };

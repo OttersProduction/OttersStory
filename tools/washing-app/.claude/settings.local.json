@@ -3,7 +3,10 @@
     "allow": [
       "Bash(test:*)",
       "Bash(npm audit:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

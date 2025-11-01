@@ -1,4 +1,4 @@
-import { UserPreferences, PreferenceKey, StorageError } from "./types";
+import { UserPreferences, PreferenceKey, validateProps } from "./types";
 import { DEFAULT_PREFERENCES } from "@/app/models/defaults";
 import { Job } from "@/app/models/job";
 
@@ -7,7 +7,7 @@ const STORAGE_KEY = "washing-app-preferences";
 /**
  * Validate a stored value against expected type
  */
-const validateValue = (key: PreferenceKey, value: any): boolean => {
+const validateValue = ({ key, value }: validateProps): boolean => {
   switch (key) {
     case "job":
       return Object.values(Job).includes(value);
@@ -15,7 +15,7 @@ const validateValue = (key: PreferenceKey, value: any): boolean => {
     case "levelGoal":
     case "aprCostMeso":
     case "aprCostNX":
-      return typeof value === "number" && value > 0;
+      return value > 0;
     case "theme":
       return value === "light" || value === "dark";
     default:
@@ -27,6 +27,8 @@ const validateValue = (key: PreferenceKey, value: any): boolean => {
  * Save user preferences to localStorage
  */
 export const savePreferences = (preferences: UserPreferences): void => {
+  if (typeof window === "undefined") return;
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   } catch (error) {
@@ -38,6 +40,10 @@ export const savePreferences = (preferences: UserPreferences): void => {
  * Load user preferences from localStorage
  */
 export const loadPreferences = (): UserPreferences => {
+  if (typeof window === "undefined") {
+    return DEFAULT_PREFERENCES;
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
@@ -48,22 +54,25 @@ export const loadPreferences = (): UserPreferences => {
 
     // Validate all values and use defaults for invalid ones
     const validated: UserPreferences = {
-      job: validateValue("job", parsed.job)
+      job: validateValue({ key: "job", value: parsed.job })
         ? parsed.job
         : DEFAULT_PREFERENCES.job,
-      hpGoal: validateValue("hpGoal", parsed.hpGoal)
+      hpGoal: validateValue({ key: "hpGoal", value: parsed.hpGoal })
         ? parsed.hpGoal
         : DEFAULT_PREFERENCES.hpGoal,
-      levelGoal: validateValue("levelGoal", parsed.levelGoal)
+      levelGoal: validateValue({ key: "levelGoal", value: parsed.levelGoal })
         ? parsed.levelGoal
         : DEFAULT_PREFERENCES.levelGoal,
-      aprCostMeso: validateValue("aprCostMeso", parsed.aprCostMeso)
+      aprCostMeso: validateValue({
+        key: "aprCostMeso",
+        value: parsed.aprCostMeso,
+      })
         ? parsed.aprCostMeso
         : DEFAULT_PREFERENCES.aprCostMeso,
-      aprCostNX: validateValue("aprCostNX", parsed.aprCostNX)
+      aprCostNX: validateValue({ key: "aprCostNX", value: parsed.aprCostNX })
         ? parsed.aprCostNX
         : DEFAULT_PREFERENCES.aprCostNX,
-      theme: validateValue("theme", parsed.theme)
+      theme: validateValue({ key: "theme", value: parsed.theme })
         ? parsed.theme
         : DEFAULT_PREFERENCES.theme,
     };
@@ -91,6 +100,8 @@ export const updatePreference = <K extends PreferenceKey>(
  * Clear all stored preferences
  */
 export const clearPreferences = (): void => {
+  if (typeof window === "undefined") return;
+
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
@@ -127,5 +138,7 @@ export const setTheme = (theme: "light" | "dark"): void =>
  * Check if preferences exist in storage
  */
 export const hasStoredPreferences = (): boolean => {
+  if (typeof window === "undefined") return false;
+
   return localStorage.getItem(STORAGE_KEY) !== null;
 };

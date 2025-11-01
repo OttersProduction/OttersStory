@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { UserPreferences, PreferenceKey } from "./types";
 import {
   loadPreferences,
@@ -29,18 +29,15 @@ export const usePreferences = () => {
     loadPreferences()
   );
 
-  useEffect(() => {
-    const loaded = loadPreferences();
-    setPreferences(loaded);
-  }, []);
-
   const updatePreferences = useCallback(
     (newPreferences: Partial<UserPreferences>) => {
-      const updated = { ...preferences, ...newPreferences };
-      setPreferences(updated);
-      savePreferences(updated);
+      setPreferences((prev) => {
+        const updated = { ...prev, ...newPreferences };
+        savePreferences(updated);
+        return updated;
+      });
     },
-    [preferences]
+    []
   );
 
   const updateSinglePreference = useCallback(
@@ -134,9 +131,12 @@ export const useTheme = () => {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    updateTheme(newTheme);
-  }, [theme, updateTheme]);
+    setThemeState((prev) => {
+      const newTheme = prev === "light" ? "dark" : "light";
+      setTheme(newTheme);
+      return newTheme;
+    });
+  }, []);
 
   return { theme, setTheme: updateTheme, toggleTheme };
 };

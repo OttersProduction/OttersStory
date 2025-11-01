@@ -11,8 +11,28 @@ export interface UserPreferences {
 
 export type PreferenceKey = keyof UserPreferences;
 
-export interface StorageError {
-  message: string;
-  key?: string;
-  value?: any;
-}
+export type validateProps =
+  | {
+      key: "job";
+      value: Job;
+    }
+  | {
+      key: "hpGoal";
+      value: number;
+    }
+  | {
+      key: "levelGoal";
+      value: number;
+    }
+  | {
+      key: "aprCostMeso";
+      value: number;
+    }
+  | {
+      key: "aprCostNX";
+      value: number;
+    }
+  | {
+      key: "theme";
+      value: "light" | "dark";
+    };
