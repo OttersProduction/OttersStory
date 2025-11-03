@@ -22,11 +22,20 @@ export class TimeCommand {
     const targetUser = interaction.options.getUser("user");
     const user = targetUser || interaction.user;
 
+    // Get guild member to retrieve nickname
+    const member = await interaction.guild?.members
+      .fetch(user.id)
+      .catch(() => null);
+    const nickname =
+      member?.displayName ||
+      member?.nickname ||
+      user.displayName ||
+      user.username;
+
     try {
       const userTimezone = await database.getTimezone(user.id);
 
       if (!userTimezone) {
-        const nickname = user.displayName || user.username;
         await interaction.reply({
           content: `${nickname} doesn't have a timezone set, ${nickname} need to /verify`,
         });
@@ -42,13 +51,11 @@ export class TimeCommand {
         hour12: false,
       });
 
-      const nickname = user.displayName || user.username;
       await interaction.reply({
         content: `${nickname}'s current time is ${timeString}`,
       });
     } catch (error) {
       console.error("Error getting user time:", error);
-      const nickname = user.displayName || user.username;
       await interaction.reply({
         content: `${nickname}'s timezone is invalid, ${nickname} need to reverify their timezone using /verify`,
       });
