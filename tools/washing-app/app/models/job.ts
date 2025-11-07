@@ -15,3 +15,15 @@ export enum Job {
 export const WARRIOR = [Job.DARK_KNIGHT, Job.PALADIN, Job.HERO];
 export const THIEF = [Job.NIGHT_LORD, Job.SHADOWER];
 export const PIRATE = [Job.CORSAIR, Job.BUCCANEER];
+
+export const MIN_MAIN_STATS = {
+  [Job.DARK_KNIGHT]: 35,
+  [Job.PALADIN]: 35,
+  [Job.HERO]: 35,
+  [Job.NIGHT_LORD]: 25,
+  [Job.SHADOWER]: 25,
+  [Job.CORSAIR]: 20,
+  [Job.BUCCANEER]: 20,
+  [Job.MAGICIAN]: 20,
+  [Job.BEGINNER]: 0,
+};

@@ -1,0 +1,71 @@
+---
+alwaysApply: true
+---
+
+# Pre-Work Requirements for Washing App Development
+
+Before starting any development work on this washing app project, you MUST:
+
+## 1. Always Reference the Washing Guide
+
+- Read and understand `tools/washing-app/CLAUDE.md` to understand the washing mechanics, terminology, and class-specific requirements
+- This is a MapleStory private server washing optimization tool that helps players calculate optimal HP washing strategies, minimize AP reset costs, understand class-specific washing mechanics, and plan washing goals based on boss requirements
+
+## 2. Always Reference the Task List
+
+- Check `tools/washing-app/TASKS.md` to understand the current development phase, completed tasks, and planned features
+- Follow the phase-based development approach
+- Mark completed tasks with [x] in TASKS.md
+- Add new tasks when implementing features not in the original plan
+- Maintain the priority system (P0-P3)
+
+## 3. Verify Feature Coverage
+
+If a requested feature or task is not described in either the washing guide or TASKS.md, you MUST:
+
+- First understand the feature requirements completely
+- Add the feature description to the appropriate section in TASKS.md
+- Update the washing guide if new washing mechanics or terminology are involved
+- Only then proceed with implementation
+
+## Key Washing Concepts to Understand
+
+- **HP Washing**: Converting excess MP into HP using AP resets
+- **MP Washing**: Converting fresh AP into MP for washing
+- **Class-specific ratios**: Different classes have different MP→HP conversion rates
+- **Base INT optimization**: Higher INT = more MP per level
+- **Minimum MP constraints**: Can't wash below certain MP thresholds
+- **Infinite washing**: Advanced technique for mages using MaxMP Increase skill
+
+## Development Standards
+
+- Use TypeScript for all new code
+- Follow the existing component structure in `tools/washing-app/`
+- Implement proper error handling and validation
+- Ensure mobile responsiveness
+- Use the established Tailwind CSS theme
+
+## File Organization
+
+- Core logic: `tools/washing-app/lib/`
+- Components: `tools/washing-app/components/`
+- App pages: `tools/washing-app/app/`
+- Documentation: `tools/washing-app/CLAUDE.md` and `tools/washing-app/TASKS.md`
+
+## UI Testing Requirements
+
+When implementing UI features, you MUST:
+
+1. **Use browser tools to test your work**: Navigate to the washing app in development mode, test all interactive elements and form inputs, verify responsive design on different screen sizes, test optimization calculations with real data, ensure proper error handling and validation, verify accessibility and usability
+2. **Test optimization calculations**: Input various character configurations, verify calculation accuracy against known washing scenarios, test edge cases and error conditions, validate cost optimization results
+3. **Document any UI issues found**: If browser testing reveals issues, document them and fix before considering the feature complete
+
+## Error Prevention
+
+- Never implement washing calculations without understanding the guide
+- Never skip the task documentation step
+- Always validate against class-specific requirements
+- Ensure cost calculations are accurate
+- Test with real washing scenarios from the guide
+
+Remember: This app helps players optimize expensive washing decisions. Accuracy and understanding of the underlying mechanics is critical.

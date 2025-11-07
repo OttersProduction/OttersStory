@@ -1,4 +1,5 @@
 import { Job } from "../models/job";
+import { getHP, getMinimumMP, getMP } from "./hp-mp-helper";
 import { clamp } from "./math";
 
 export const MP_LOSS_PER_WASH = {
@@ -15,20 +16,8 @@ export const MP_LOSS_PER_WASH = {
   [Job.SHADOWER]: 12,
 };
 
-export const getHPGainByLevel = (
-  job: Job,
-  level: number,
-  freshAP: boolean = true
-) => {
-  return getHPGainByAP(job, freshAP) * clamp(level, 1, 200) * 5;
-};
-
-export const getMPLossByLevel = (job: Job, level: number) => {
-  return MP_LOSS_PER_WASH[job] * clamp(level, 1, 200) * 5;
-};
-
-export const getMPGainByLevel = (job: Job, level: number, int: number = 4) => {
-  return getMPGainByAP(job, int) * clamp(level, 1, 200) * 5;
+export const getMPLossByAP = (job: Job, ap: number) => {
+  return MP_LOSS_PER_WASH[job] * ap;
 };
 
 export const getMPGainByAP = (job: Job, int: number = 4) => {
@@ -80,4 +69,14 @@ export const getHPGainByAP = (job: Job, freshAP: boolean = true) => {
       break;
   }
   return bonusHP;
+};
+
+export const getAPResetsHPWash = (job: Job, level: number, mp: number) => {
+  const minMP = getMinimumMP(job, level);
+  if (mp > minMP) {
+    const mpDiff = mp - minMP;
+    const apResets = Math.floor(mpDiff / MP_LOSS_PER_WASH[job]);
+    return Math.min(apResets, 5);
+  }
+  return 0;
 };
