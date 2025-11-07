@@ -24,6 +24,29 @@ export const MIN_MAIN_STATS = {
   [Job.SHADOWER]: 25,
   [Job.CORSAIR]: 20,
   [Job.BUCCANEER]: 20,
+  [Job.BOWMASTER]: 25,
+  [Job.MARKSMAN]: 25,
   [Job.MAGICIAN]: 20,
   [Job.BEGINNER]: 0,
+};
+
+export const getMainStatKey = (job: Job): "str" | "dex" | "luk" | "int" => {
+  switch (job) {
+    case Job.HERO:
+    case Job.PALADIN:
+    case Job.DARK_KNIGHT:
+      return "str";
+    case Job.BOWMASTER:
+    case Job.MARKSMAN:
+    case Job.CORSAIR:
+    case Job.BUCCANEER:
+    case Job.NIGHT_LORD:
+    case Job.SHADOWER:
+      return "dex";
+    case Job.MAGICIAN:
+      return "int";
+    case Job.BEGINNER:
+    default:
+      return "str"; // Default, though BEGINNER has no requirement
+  }
 };

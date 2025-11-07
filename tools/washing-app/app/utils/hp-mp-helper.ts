@@ -1,6 +1,7 @@
 import { Job, WARRIOR } from "@/app/models/job";
 import { clamp } from "@/app/utils/math";
-import { HPQuest } from "../models/hp-quest";
+import { HPQuest } from "@/app/models/hp-quest";
+import { INITIAL_MP } from "@/app/models/player";
 
 export const getMinimumMP = (job: Job, level: number) => {
   switch (job) {
@@ -28,11 +29,11 @@ export const getMinimumMP = (job: Job, level: number) => {
 };
 
 export const getMP = (job: Job, level: number, int: number = 4) => {
-  let bonusMP = 11;
+  let bonusMP = 10.5;
   if (Job.BEGINNER === job) {
-    return 5 + (clamp(level, 1, 200) - 1) * bonusMP;
+    return Math.round(INITIAL_MP + (clamp(level, 1, 200) - 1) * bonusMP);
   }
-  const firstJobMP = 5 + (clamp(level, 1, 10) - 1) * bonusMP;
+  const firstJobMP = INITIAL_MP + (clamp(level, 1, 10) - 1) * bonusMP;
   if (level <= 10) {
     return firstJobMP;
   }

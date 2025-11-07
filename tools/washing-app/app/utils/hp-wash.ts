@@ -1,4 +1,4 @@
-import { Job } from "@/app/models/job";
+import { getMainStatKey, Job, MIN_MAIN_STATS } from "@/app/models/job";
 import { Player } from "@/app/models/player";
 import { clamp } from "@/app/utils/math";
 
@@ -11,21 +11,41 @@ const simulateHPWashing = (
   targetInt: number
 ): { finalHP: number; data: any[] } => {
   const data = [];
-  const player = new Player(job, 0);
+  const player = new Player(job, 1);
+  const mainStatKey = getMainStatKey(job);
+  const minMainStat = MIN_MAIN_STATS[job] || 0;
 
-  while (player.level < targetLevel) {
-    player.levelUp();
-    player.washHP();
-    if (targetInt > player.stats.int) {
-      player.addStats({ int: clamp(targetInt - player.stats.int, 0, 5) });
-    }
-
+  while (player.level <= targetLevel) {
     data.push({
       level: player.level,
       hp: player.hp,
       mp: player.mp,
+
       int: player.stats.int,
+      [mainStatKey]: player.stats[mainStatKey],
     });
+    player.levelUp();
+    if (player.level >= 10) {
+      player.washHP();
+    }
+
+    // Calculate available AP to allocate (max 5 per level)
+
+    // First priority: Reach minimum main stat requirement
+    if (player.stats[mainStatKey] < minMainStat) {
+      const mainStatNeeded = clamp(
+        minMainStat - player.stats[mainStatKey],
+        0,
+        player.stats.ap
+      );
+      player.addStats({ [mainStatKey]: mainStatNeeded });
+    }
+
+    // Second priority: Add INT up to target if we still have AP remaining
+    if (targetInt > player.stats.int) {
+      const intToAdd = clamp(targetInt - player.stats.int, 0, player.stats.ap);
+      player.addStats({ int: intToAdd });
+    }
   }
 
   return { finalHP: player.hp, data };

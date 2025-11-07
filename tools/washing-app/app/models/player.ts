@@ -6,6 +6,8 @@ import {
 } from "../utils/wash-helper";
 import { Job } from "./job";
 
+export const INITIAL_MP = 5;
+export const INITIAL_HP = 50;
 interface Stats {
   str: number;
   dex: number;
@@ -21,8 +23,8 @@ export class Player {
     dex: 4,
     int: 4,
     luk: 4,
-    naturalHP: 50,
-    naturalMP: 50,
+    naturalHP: INITIAL_HP,
+    naturalMP: INITIAL_MP,
     ap: 0,
   };
   private job: Job = Job.BEGINNER;
@@ -40,6 +42,7 @@ export class Player {
 
   public levelUp() {
     this.level++;
+    this.stats.ap += 5;
     this.stats.naturalHP = getHP(this.job, this.level);
     this.stats.naturalMP = getMP(this.job, this.level, this.stats.int);
   }
@@ -58,6 +61,12 @@ export class Player {
   }
 
   public addStats(args: Partial<Stats>) {
+    const totalAP =
+      (args.str ?? 0) + (args.dex ?? 0) + (args.int ?? 0) + (args.luk ?? 0);
+    if (totalAP > this.stats.ap) {
+      throw new Error(`Total AP cannot be greater than ${this.stats.ap}`);
+    }
+    this.stats.ap -= totalAP;
     this.stats.str += args.str ?? 0;
     this.stats.dex += args.dex ?? 0;
     this.stats.int += args.int ?? 0;
