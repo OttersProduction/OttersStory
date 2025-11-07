@@ -14,7 +14,7 @@ interface JobSelectProps {
 export const JobSelect = ({ job, onSelectJob }: JobSelectProps) => {
   return (
     <Select value={job} onValueChange={(value) => onSelectJob(value as Job)}>
-      <SelectTrigger className="w-full max-w-md">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Select a class" />
       </SelectTrigger>
       <SelectContent>
