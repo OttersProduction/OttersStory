@@ -24,13 +24,16 @@ import { JobSelect } from "@/components/logical/job-select";
 import { createHPWashPlan } from "./utils/hp-wash";
 import { Button } from "@/components/ui/button";
 import { PlanBreakdown } from "@/components/logical/plan-breakdown";
+import { DEFAULT_PREFERENCES } from "@/app/models/defaults";
 
 export default function Home() {
-  const [selectedJob, setSelectedJob] = useState<Job>(Job.BEGINNER);
-  const [targetLevel, setTargetLevel] = useState<number>(175);
+  const [selectedJob, setSelectedJob] = useState<Job>(DEFAULT_PREFERENCES.job);
+  const [targetLevel, setTargetLevel] = useState<number>(
+    DEFAULT_PREFERENCES.levelGoal
+  );
   const [targetInt, setTargetInt] = useState<number | undefined>(undefined);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [targetHP, setTargetHP] = useState<number>(19_500);
+  const [targetHP, setTargetHP] = useState<number>(DEFAULT_PREFERENCES.hpGoal);
 
   const hpPlan = useMemo(
     () => createHPWashPlan(selectedJob, targetLevel, targetHP, targetInt),
