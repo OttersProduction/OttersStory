@@ -23,27 +23,28 @@ import { JobSelect } from "@/components/logical/job-select";
 
 import { createHPWashPlan } from "./utils/hp-wash";
 import { Button } from "@/components/ui/button";
+import { PlanBreakdown } from "@/components/logical/plan-breakdown";
 
 export default function Home() {
   const [selectedJob, setSelectedJob] = useState<Job>(Job.BEGINNER);
-  const [targetLevel, setTargetLevel] = useState<number>(200);
+  const [targetLevel, setTargetLevel] = useState<number>(175);
   const [targetInt, setTargetInt] = useState<number | undefined>(undefined);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [targetHP, setTargetHP] = useState<number>(19500);
+  const [targetHP, setTargetHP] = useState<number>(19_500);
 
-  const chartData = useMemo(
+  const hpPlan = useMemo(
     () => createHPWashPlan(selectedJob, targetLevel, targetHP, targetInt),
     [selectedJob, targetLevel, targetHP, targetInt]
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             MapleStory Washing Calculator
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Visualize HP and MP growth by class and level
           </p>
         </div>
@@ -125,7 +126,7 @@ export default function Home() {
                     placeholder="Auto-calculate optimal INT"
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Leave empty to automatically calculate the minimum INT
                     needed
                   </p>
@@ -135,7 +136,8 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {selectedJob && <Graph job={selectedJob} data={chartData} />}
+        <PlanBreakdown {...hpPlan} />
+        {selectedJob && <Graph job={selectedJob} data={hpPlan.data} />}
       </div>
     </div>
   );

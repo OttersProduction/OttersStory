@@ -1,6 +1,7 @@
 import { getMainStatKey, Job, MIN_MAIN_STATS } from "@/app/models/job";
 import { Player } from "@/app/models/player";
 import { clamp } from "@/app/utils/math";
+import { HPWashPlan } from "@/app/models/hp-wash";
 
 /**
  * Simulates HP washing for a player from level 1 to targetLevel
@@ -9,11 +10,12 @@ const simulateHPWashing = (
   job: Job,
   targetLevel: number,
   targetInt: number
-): { finalHP: number; data: any[] } => {
+) => {
   const data = [];
   const player = new Player(job, 1);
   const mainStatKey = getMainStatKey(job);
   const minMainStat = MIN_MAIN_STATS[job] || 0;
+  let totalAPResets = 0;
 
   while (player.level <= targetLevel) {
     data.push({
@@ -26,7 +28,7 @@ const simulateHPWashing = (
     });
     player.levelUp();
     if (player.level >= 10) {
-      player.washHP();
+      totalAPResets += player.washHP();
     }
 
     // Calculate available AP to allocate (max 5 per level)
@@ -48,7 +50,11 @@ const simulateHPWashing = (
     }
   }
 
-  return { finalHP: player.hp, data };
+  if (job !== Job.MAGICIAN) {
+    totalAPResets += player.stats.int - 4;
+  }
+
+  return { player, data, totalAPResets };
 };
 
 /**
@@ -60,15 +66,15 @@ const findOptimalInt = (
   targetHP: number
 ): number => {
   let low = 4; // Minimum INT
-  let high = 999; // Maximum reasonable INT
+  let high = 500; // Maximum reasonable INT
   let bestInt = 4;
 
   // Binary search for the optimal INT
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
-    const { finalHP } = simulateHPWashing(job, targetLevel, mid);
+    const { player } = simulateHPWashing(job, targetLevel, mid);
 
-    if (finalHP >= targetHP) {
+    if (player.hp >= targetHP) {
       // We reached the target, try with less INT
       bestInt = mid;
       high = mid - 1;
@@ -86,13 +92,27 @@ export const createHPWashPlan = (
   targetLevel: number,
   targetHP: number,
   targetInt?: number
-) => {
+): HPWashPlan => {
   // If targetInt is not specified, calculate the optimal INT needed
   const effectiveInt =
     targetInt !== undefined
       ? targetInt
       : findOptimalInt(job, targetLevel, targetHP);
 
-  const { data } = simulateHPWashing(job, targetLevel, effectiveInt);
-  return data;
+  const { data, player, totalAPResets } = simulateHPWashing(
+    job,
+    targetLevel,
+    effectiveInt
+  );
+
+  const hpDifference = targetHP - player.hp;
+
+  return {
+    data,
+    hpDifference,
+    finalHP: player.hp,
+    finalMP: player.mp,
+    finalInt: player.stats.int,
+    totalAPResets,
+  };
 };

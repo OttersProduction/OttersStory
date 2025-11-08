@@ -41,6 +41,10 @@ export default function Graph({ job, data }: GraphProps) {
               <XAxis dataKey="level" />
               <YAxis />
               <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--background)",
+                  color: "var(--foreground)",
+                }}
                 formatter={(value, name) => [value.toLocaleString(), name]}
                 labelFormatter={(level) => `Level ${level}`}
               />

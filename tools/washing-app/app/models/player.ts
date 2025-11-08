@@ -51,6 +51,7 @@ export class Player {
     const apResets = getAPResetsHPWash(this.job, this.level, this.mp);
     this.mpGain -= getMPLossByAP(this.job, apResets);
     this.hpGain += getHPGainByAP(this.job, true) * apResets;
+    return apResets;
   }
 
   get mp() {
