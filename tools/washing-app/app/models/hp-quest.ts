@@ -1,5 +1,4 @@
 export enum HPQuest {
-  WaterSpring = "WaterSpring",
   Olaf1 = "Olaf1",
   Olaf2 = "Olaf2",
   Olaf3 = "Olaf3",
@@ -11,4 +10,5 @@ export enum HPQuest {
   Olaf9 = "Olaf9",
   Olaf10 = "Olaf10",
   ElixerOfLife = "ElixerOfLife",
+  WaterSpring = "WaterSpring",
 }

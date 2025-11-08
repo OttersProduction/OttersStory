@@ -2,6 +2,7 @@ import { getMainStatKey, Job, MIN_MAIN_STATS } from "@/app/models/job";
 import { Player } from "@/app/models/player";
 import { clamp } from "@/app/utils/math";
 import { HPWashPlan } from "@/app/models/hp-wash";
+import { HPQuest } from "@/app/models/hp-quest";
 
 /**
  * Simulates HP washing for a player from level 1 to targetLevel
@@ -9,10 +10,11 @@ import { HPWashPlan } from "@/app/models/hp-wash";
 const simulateHPWashing = (
   job: Job,
   targetLevel: number,
-  targetInt: number
+  targetInt: number,
+  hpQuests: HPQuest[]
 ) => {
   const data = [];
-  const player = new Player(job, 1);
+  const player = new Player(job, 1, undefined, hpQuests);
   const mainStatKey = getMainStatKey(job);
   const minMainStat = MIN_MAIN_STATS[job] || 0;
   let totalAPResets = 0;
@@ -63,7 +65,8 @@ const simulateHPWashing = (
 const findOptimalInt = (
   job: Job,
   targetLevel: number,
-  targetHP: number
+  targetHP: number,
+  hpQuests: HPQuest[]
 ): number => {
   let low = 4; // Minimum INT
   let high = 500; // Maximum reasonable INT
@@ -72,7 +75,7 @@ const findOptimalInt = (
   // Binary search for the optimal INT
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
-    const { player } = simulateHPWashing(job, targetLevel, mid);
+    const { player } = simulateHPWashing(job, targetLevel, mid, hpQuests);
 
     if (player.hp >= targetHP) {
       // We reached the target, try with less INT
@@ -91,18 +94,20 @@ export const createHPWashPlan = (
   job: Job,
   targetLevel: number,
   targetHP: number,
+  hpQuests: HPQuest[] = [],
   targetInt?: number
 ): HPWashPlan => {
   // If targetInt is not specified, calculate the optimal INT needed
   const effectiveInt =
     targetInt !== undefined
       ? targetInt
-      : findOptimalInt(job, targetLevel, targetHP);
-
+      : findOptimalInt(job, targetLevel, targetHP, hpQuests);
+  ``;
   const { data, player, totalAPResets } = simulateHPWashing(
     job,
     targetLevel,
-    effectiveInt
+    effectiveInt,
+    hpQuests
   );
 
   const hpDifference = targetHP - player.hp;

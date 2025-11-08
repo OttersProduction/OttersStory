@@ -1,10 +1,11 @@
-import { getHP, getMP } from "../utils/hp-mp-helper";
+import { getHP, getMP, getQuestHP } from "@/app/utils/hp-mp-helper";
 import {
   getAPResetsHPWash,
   getHPGainByAP,
   getMPLossByAP,
-} from "../utils/wash-helper";
-import { Job } from "./job";
+} from "@/app/utils/wash-helper";
+import { HPQuest } from "@/app/models/hp-quest";
+import { Job } from "@/app/models/job";
 
 export const INITIAL_MP = 5;
 export const INITIAL_HP = 50;
@@ -31,19 +32,31 @@ export class Player {
   private mpGain: number = 0;
   private hpGain: number = 0;
   public level: number = 1;
+  private hpQuests: HPQuest[] = [];
+  private additionalHP: number = 0;
 
-  constructor(job: Job, level: number, args?: Stats) {
+  constructor(job: Job, level: number, args?: Stats, hpQuests: HPQuest[] = []) {
     this.job = job;
     this.level = level;
     if (args) {
       this.stats = args;
     }
+    this.hpQuests = hpQuests;
   }
 
   public levelUp() {
     this.level++;
     this.stats.ap += 5;
-    this.stats.naturalHP = getHP(this.job, this.level);
+    const { total_hp, breakdown } = getQuestHP(
+      this.hpQuests,
+      this.job,
+      this.level
+    );
+    this.additionalHP += total_hp;
+    this.hpQuests = this.hpQuests.filter(
+      (quest) => !Object.keys(breakdown).includes(quest)
+    );
+    this.stats.naturalHP = getHP(this.job, this.level) + this.additionalHP;
     this.stats.naturalMP = getMP(this.job, this.level, this.stats.int);
   }
 

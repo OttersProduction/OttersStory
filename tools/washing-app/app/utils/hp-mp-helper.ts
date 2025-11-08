@@ -156,7 +156,7 @@ export const getQuestHP = (quests: HPQuest[], job: Job, level: number) => {
     [HPQuest.Olaf8]: [160, 450],
     [HPQuest.Olaf9]: [180, 550],
     [HPQuest.Olaf10]: [200, 0], // Placeholder if needed
-    [HPQuest.ElixerOfLife]: [200, 0], // Placeholder if needed
+    [HPQuest.ElixerOfLife]: [120, 0], // Placeholder if needed
   };
 
   const breakdown = quests.reduce((acc, quest) => {
