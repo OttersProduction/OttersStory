@@ -76,7 +76,7 @@ export const getAPResetsHPWash = (job: Job, level: number, mp: number) => {
   if (mp > minMP) {
     const mpDiff = mp - minMP;
     const apResets = Math.floor(mpDiff / MP_LOSS_PER_WASH[job]);
-    return Math.min(apResets, 5);
+    return apResets;
   }
   return 0;
 };

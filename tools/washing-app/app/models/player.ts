@@ -26,7 +26,7 @@ export class Player {
     luk: 4,
     naturalHP: INITIAL_HP,
     naturalMP: INITIAL_MP,
-    ap: 0,
+    ap: 9,
   };
   private job: Job = Job.BEGINNER;
   private mpGain: number = 0;
@@ -56,22 +56,24 @@ export class Player {
     this.hpQuests = this.hpQuests.filter(
       (quest) => !Object.keys(breakdown).includes(quest)
     );
+
     this.stats.naturalHP = getHP(this.job, this.level) + this.additionalHP;
     this.stats.naturalMP = getMP(this.job, this.level, this.stats.int);
   }
 
   public washHP() {
-    const apResets = getAPResetsHPWash(this.job, this.level, this.mp);
+    const possibleWashes = getAPResetsHPWash(this.job, this.level, this.mp);
+    const apResets = Math.min(possibleWashes, this.stats.ap);
     this.mpGain -= getMPLossByAP(this.job, apResets);
     this.hpGain += getHPGainByAP(this.job, true) * apResets;
     return apResets;
   }
 
   get mp() {
-    return this.stats.naturalMP + this.mpGain;
+    return Math.round(this.stats.naturalMP + this.mpGain);
   }
   get hp() {
-    return this.stats.naturalHP + this.hpGain;
+    return Math.round(this.stats.naturalHP + this.hpGain);
   }
 
   public addStats(args: Partial<Stats>) {

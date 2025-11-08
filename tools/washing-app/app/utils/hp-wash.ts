@@ -29,9 +29,7 @@ const simulateHPWashing = (
       [mainStatKey]: player.stats[mainStatKey],
     });
     player.levelUp();
-    if (player.level >= 10) {
-      totalAPResets += player.washHP();
-    }
+    totalAPResets += player.washHP();
 
     // Calculate available AP to allocate (max 5 per level)
 

@@ -29,12 +29,12 @@ export const getMinimumMP = (job: Job, level: number) => {
 };
 
 export const getMP = (job: Job, level: number, int: number = 4) => {
-  let bonusMP = 10.5;
+  let bonusMP = 11;
   if (Job.BEGINNER === job) {
     return Math.round(INITIAL_MP + (clamp(level, 1, 200) - 1) * bonusMP);
   }
-  const firstJobMP = INITIAL_MP + (clamp(level, 1, 10) - 1) * bonusMP;
-  if (level <= 10) {
+  const firstJobMP = INITIAL_MP + (clamp(level, 1, 9) - 1) * bonusMP;
+  if (level < 10) {
     return firstJobMP;
   }
 
@@ -62,14 +62,14 @@ export const getMP = (job: Job, level: number, int: number = 4) => {
   bonusMP += Math.floor(int / 10);
 
   if (job === Job.MAGICIAN) {
-    let mageMP = firstJobMP + (clamp(level, 11, 14) - 1) * bonusMP;
+    let mageMP = firstJobMP + (clamp(level, 10, 14) - 1) * bonusMP;
     if (level > 14) {
       mageMP = mageMP + (clamp(level, 15, 200) - 1) * (bonusMP + 20);
     }
     return mageMP;
   }
 
-  return firstJobMP + (clamp(level, 11, 200) - 1) * bonusMP;
+  return firstJobMP + (clamp(level, 10, 200) - 1) * bonusMP;
 };
 
 export const getHP = (job: Job, level: number) => {
@@ -78,7 +78,7 @@ export const getHP = (job: Job, level: number) => {
   }
 
   const firstJobHP = 14 * clamp(level, 1, 10) + 36;
-  if (level <= 10) {
+  if (level < 10) {
     return firstJobHP;
   }
 
@@ -106,7 +106,7 @@ export const getHP = (job: Job, level: number) => {
   }
 
   if (WARRIOR.includes(job)) {
-    let warriorHP = firstJobHP + (clamp(level, 11, 14) - 1) * bonusHP;
+    let warriorHP = firstJobHP + (clamp(level, 10, 14) - 1) * bonusHP;
     if (level > 14) {
       warriorHP = warriorHP + (clamp(level, 15, 200) - 1) * (bonusHP + 40);
     }
@@ -114,7 +114,7 @@ export const getHP = (job: Job, level: number) => {
   }
 
   return (
-    firstJobHP + (clamp(level, 11, 200) - 1) * bonusHP + advancementBonusHP
+    firstJobHP + (clamp(level, 10, 200) - 1) * bonusHP + advancementBonusHP
   );
 };
 
