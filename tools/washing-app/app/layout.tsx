@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://washing.otterstory.club/opengraph-cover.png?v=2",
+        url: "https://washing.otterstory.club/opengraph-cover.jpg?v=2",
         width: 1200,
         height: 630,
         alt: "MapleStory HP/MP Washing Calculator - Optimize your washing strategy",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "MapleStory HP/MP Washing Calculator",
     description:
       "Calculate optimal HP washing strategies for MapleStory private servers. Visualize HP and MP growth by class and minimize AP reset costs.",
-    images: ["https://washing.otterstory.club/opengraph-cover.png?v=2"],
+    images: ["https://washing.otterstory.club/opengraph-cover.jpg?v=2"],
   },
   icons: {
     icon: [
