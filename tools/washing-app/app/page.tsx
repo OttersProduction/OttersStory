@@ -14,6 +14,7 @@ import Graph from "@/components/logical/graph";
 import { createHPWashPlan } from "./utils/hp-wash";
 import { PlanBreakdown } from "@/components/logical/plan-breakdown";
 import { FormValues, InitalForm } from "@/components/logical/form";
+import { Player } from "@/app/models/player";
 
 export default function Home() {
   const [formvalues, setFormvalues] = useState<FormValues | undefined>(
@@ -24,19 +25,33 @@ export default function Home() {
     setFormvalues(values);
   };
 
-  const hpPlan = useMemo(
-    () =>
-      formvalues
-        ? createHPWashPlan(
-            formvalues.job,
-            formvalues.targetLevel,
-            formvalues.targetHP,
-            formvalues.hpQuests,
-            formvalues.targetInt
-          )
-        : undefined,
-    [formvalues]
-  );
+  const plan = useMemo(() => {
+    if (!formvalues) return undefined;
+
+    // Create Player instance from form values
+    const player = new Player(
+      formvalues.job,
+      formvalues.level,
+      {
+        str: formvalues.str,
+        dex: formvalues.dex,
+        int: formvalues.int,
+        luk: formvalues.luk,
+        naturalHP: formvalues.hp,
+        naturalMP: formvalues.mp,
+        ap: formvalues.ap,
+      },
+      formvalues.hpQuests
+    );
+
+    return createHPWashPlan(
+      player,
+      formvalues.targetLevel,
+      formvalues.targetHP,
+      formvalues.targetInt,
+      formvalues.washingMode
+    );
+  }, [formvalues]);
 
   return (
     <div className="min-h-screen p-8">
@@ -50,23 +65,13 @@ export default function Home() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuration</CardTitle>
-            <CardDescription>
-              Choose a class, set your target level and HP goal
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <InitalForm onSubmit={handleSubmit} />
-          </CardContent>
-        </Card>
+        <InitalForm onSubmit={handleSubmit} />
 
-        {hpPlan && formvalues && (
+        {plan && formvalues && (
           <>
-            <PlanBreakdown {...hpPlan} />
+            <PlanBreakdown {...plan} />
 
-            <Graph job={formvalues.job} data={hpPlan.data} />
+            <Graph job={formvalues.job} data={plan.data} />
           </>
         )}
       </div>

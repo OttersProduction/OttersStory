@@ -34,8 +34,8 @@ export default function Graph({ job, data }: GraphProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-96 w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-96 w-full min-h-0">
+          <ResponsiveContainer width="100%" height={384}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="level" />

@@ -28,7 +28,7 @@ export class Player {
     naturalMP: INITIAL_MP,
     ap: 9,
   };
-  private job: Job = Job.BEGINNER;
+  public job: Job = Job.BEGINNER;
   private mpGain: number = 0;
   private hpGain: number = 0;
   public level: number = 1;
@@ -74,6 +74,10 @@ export class Player {
   }
   get hp() {
     return Math.round(this.stats.naturalHP + this.hpGain);
+  }
+
+  get hpQuestsList(): HPQuest[] {
+    return [...this.hpQuests];
   }
 
   public addStats(args: Partial<Stats>) {

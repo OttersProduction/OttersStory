@@ -4,19 +4,21 @@ import { clamp } from "@/app/utils/math";
 import { HPWashPlan } from "@/app/models/hp-wash";
 import { HPQuest } from "@/app/models/hp-quest";
 
+type WashingMode = "hp" | "none" | "mp";
+
 /**
  * Simulates HP washing for a player from level 1 to targetLevel
  */
-const simulateHPWashing = (
-  job: Job,
+const simulateWashing = (
+  player: Player,
   targetLevel: number,
   targetInt: number,
-  hpQuests: HPQuest[]
+  washingMode: WashingMode = "hp"
 ) => {
   const data = [];
-  const player = new Player(job, 1, undefined, hpQuests);
-  const mainStatKey = getMainStatKey(job);
-  const minMainStat = MIN_MAIN_STATS[job] || 0;
+
+  const mainStatKey = getMainStatKey(player.job);
+  const minMainStat = MIN_MAIN_STATS[player.job] || 0;
   let totalAPResets = 0;
 
   while (player.level <= targetLevel) {
@@ -29,7 +31,11 @@ const simulateHPWashing = (
       [mainStatKey]: player.stats[mainStatKey],
     });
     player.levelUp();
-    totalAPResets += player.washHP();
+
+    // Only perform washing if mode is "hp"
+    if (washingMode === "hp") {
+      totalAPResets += player.washHP();
+    }
 
     // Calculate available AP to allocate (max 5 per level)
 
@@ -50,7 +56,8 @@ const simulateHPWashing = (
     }
   }
 
-  if (job !== Job.MAGICIAN) {
+  // Only count INT-based AP resets if washing is enabled
+  if (washingMode === "hp" && player.job !== Job.MAGICIAN) {
     totalAPResets += player.stats.int - 4;
   }
 
@@ -61,11 +68,16 @@ const simulateHPWashing = (
  * Finds the optimal INT needed to reach targetHP at targetLevel using binary search
  */
 const findOptimalInt = (
-  job: Job,
+  player: Player,
   targetLevel: number,
   targetHP: number,
-  hpQuests: HPQuest[]
+  washingMode: WashingMode = "hp"
 ): number => {
+  // If washing is disabled, we can't optimize INT for HP washing
+  if (washingMode !== "hp") {
+    return 4; // Return minimum INT
+  }
+
   let low = 4; // Minimum INT
   let high = 500; // Maximum reasonable INT
   let bestInt = 4;
@@ -73,9 +85,21 @@ const findOptimalInt = (
   // Binary search for the optimal INT
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
-    const { player } = simulateHPWashing(job, targetLevel, mid, hpQuests);
+    // Create a fresh player for each simulation to avoid mutation
+    const freshPlayer = new Player(
+      player.job,
+      player.level,
+      { ...player.stats },
+      player.hpQuestsList
+    );
+    const { player: simulatedPlayer } = simulateWashing(
+      freshPlayer,
+      targetLevel,
+      mid,
+      washingMode
+    );
 
-    if (player.hp >= targetHP) {
+    if (simulatedPlayer.hp >= targetHP) {
       // We reached the target, try with less INT
       bestInt = mid;
       high = mid - 1;
@@ -89,33 +113,39 @@ const findOptimalInt = (
 };
 
 export const createHPWashPlan = (
-  job: Job,
+  player: Player,
   targetLevel: number,
   targetHP: number,
-  hpQuests: HPQuest[] = [],
-  targetInt?: number
+  targetInt?: number,
+  washingMode: WashingMode = "hp"
 ): HPWashPlan => {
-  // If targetInt is not specified, calculate the optimal INT needed
+  // If targetInt is not specified and washing is enabled, calculate the optimal INT needed
   const effectiveInt =
     targetInt !== undefined
       ? targetInt
-      : findOptimalInt(job, targetLevel, targetHP, hpQuests);
-  ``;
-  const { data, player, totalAPResets } = simulateHPWashing(
-    job,
-    targetLevel,
-    effectiveInt,
-    hpQuests
-  );
+      : findOptimalInt(player, targetLevel, targetHP, washingMode);
 
-  const hpDifference = targetHP - player.hp;
+  // Create a fresh player for the final simulation to avoid mutation
+  const freshPlayer = new Player(
+    player.job,
+    player.level,
+    { ...player.stats },
+    player.hpQuestsList
+  );
+  const {
+    data,
+    player: simulatedPlayer,
+    totalAPResets,
+  } = simulateWashing(freshPlayer, targetLevel, effectiveInt, washingMode);
+
+  const hpDifference = targetHP - simulatedPlayer.hp;
 
   return {
     data,
     hpDifference,
-    finalHP: player.hp,
-    finalMP: player.mp,
-    finalInt: player.stats.int,
+    finalHP: simulatedPlayer.hp,
+    finalMP: simulatedPlayer.mp,
+    finalInt: simulatedPlayer.stats.int,
     totalAPResets,
   };
 };
