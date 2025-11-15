@@ -27,3 +27,6 @@ database/docker-pg-db-data
 .DS_Store
 
 *.db
+
+# Playwright MCP
+.playwright-mcp/
