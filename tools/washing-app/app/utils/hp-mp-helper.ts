@@ -124,13 +124,13 @@ export const getAdvancementBonusHP = (job: Job, level: number) => {
     if (level >= 10 && level < 30) return 225;
     if (level >= 30 && level < 70) return 225 + 325;
     if (level >= 70 && level < 120) return 225 + 325 + 1025;
-    if (level >= 120 && level <= 200) return 225 + 325 + 1025 + 1_825;
+    if (level >= 120) return 225 + 325 + 1025 + 1_825;
   }
 
   if (level >= 10 && level < 30) return 162;
   if (level >= 30 && level < 70) return 162 + 325;
   if (level >= 70 && level < 120) return 162 + 325 + 625;
-  if (level >= 120 && level <= 200) return 162 + 325 + 625 + 925;
+  if (level >= 120) return 162 + 325 + 625 + 925;
 
   return 0;
 };
@@ -164,7 +164,7 @@ export const getQuestHP = (quests: HPQuest[], job: Job, level: number) => {
     if (!requirement) return acc;
 
     const [minLevel, hpValue] = requirement;
-    if (level < minLevel) return acc;
+    if (level <= minLevel) return acc;
 
     const hp = typeof hpValue === "function" ? hpValue(job) : hpValue;
     return { ...acc, [quest]: hp };

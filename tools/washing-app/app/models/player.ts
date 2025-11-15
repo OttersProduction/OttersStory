@@ -9,6 +9,7 @@ import { Job } from "@/app/models/job";
 
 export const INITIAL_MP = 5;
 export const INITIAL_HP = 50;
+export const MAX_LEVEL = 200;
 interface Stats {
   str: number;
   dex: number;
@@ -70,8 +71,10 @@ export class Player {
   }
 
   public levelUp() {
-    this.level++;
-    this.stats.ap += 5;
+    if (this.level < MAX_LEVEL) {
+      this.level++;
+      this.stats.ap += 5;
+    }
     const { total_hp, breakdown } = getQuestHP(
       this.hpQuests,
       this.job,

@@ -21,7 +21,7 @@ const simulateWashing = (
   const minMainStat = MIN_MAIN_STATS[player.job] || 0;
   let totalAPResets = 0;
 
-  while (player.level <= targetLevel) {
+  while (player.level < targetLevel) {
     data.push({
       level: player.level,
       hp: player.hp,
@@ -56,6 +56,14 @@ const simulateWashing = (
     }
   }
 
+  data.push({
+    level: player.level,
+    hp: player.hp,
+    mp: player.mp,
+
+    int: player.stats.int,
+    [mainStatKey]: player.stats[mainStatKey],
+  });
   // Only count INT-based AP resets if washing is enabled
   if (washingMode === "hp" && player.job !== Job.MAGICIAN) {
     totalAPResets += player.stats.int - 4;
