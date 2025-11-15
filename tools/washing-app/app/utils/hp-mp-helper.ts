@@ -124,11 +124,10 @@ export const getMinimumMP = (job: Job, level: number) => {
   }
 };
 
-export const getMP = (job: Job, level: number, int: number = 4) => {
+export const getMP = (job: Job, level: number) => {
   const mp = MP_MAP[job][level];
-  const intBonus = Math.floor(int / 10);
 
-  return mp + intBonus;
+  return mp;
 };
 
 export const getHP = (job: Job, level: number) => {

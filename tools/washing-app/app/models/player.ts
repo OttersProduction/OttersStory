@@ -52,7 +52,7 @@ export class Player {
       const baseHP = getHP(job, level);
 
       // Calculate base MP for the starting level with current INT
-      const baseMP = getMP(job, level, args.int);
+      const baseMP = getMP(job, level);
 
       // Calculate washed gains: difference between user's input and base values
       // This preserves the washed HP/MP through level ups
@@ -86,7 +86,9 @@ export class Player {
     );
 
     this.stats.naturalHP = getHP(this.job, this.level) + this.additionalHP;
-    this.stats.naturalMP = getMP(this.job, this.level, this.stats.int);
+    const intBonus = Math.floor(this.stats.int / 10);
+    this.mpGain += intBonus;
+    this.stats.naturalMP = getMP(this.job, this.level);
   }
 
   public washHP() {
