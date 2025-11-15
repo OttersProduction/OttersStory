@@ -1,7 +1,103 @@
 import { Job, WARRIOR } from "@/app/models/job";
 import { clamp } from "@/app/utils/math";
 import { HPQuest } from "@/app/models/hp-quest";
-import { INITIAL_MP } from "@/app/models/player";
+
+export const getLevelUpMP = (job: Job, level: number) => {
+  let levelUpMP = 11;
+
+  if (level <= 10) {
+    return levelUpMP;
+  }
+
+  switch (job) {
+    case Job.NIGHT_LORD:
+    case Job.SHADOWER:
+    case Job.BOWMASTER:
+    case Job.MARKSMAN:
+      levelUpMP = 15;
+      break;
+    case Job.CORSAIR:
+    case Job.BUCCANEER:
+      levelUpMP = 20;
+      break;
+    case Job.DARK_KNIGHT:
+    case Job.PALADIN:
+    case Job.HERO:
+      levelUpMP = 5;
+      break;
+    case Job.MAGICIAN:
+      levelUpMP = 23;
+      break;
+  }
+
+  if (job === Job.MAGICIAN && level > 14) {
+    return levelUpMP + 20;
+  }
+
+  return levelUpMP;
+};
+
+export const getLevelUpHP = (job: Job, level: number) => {
+  let levelUpHP = 22;
+
+  switch (job) {
+    case Job.NIGHT_LORD:
+    case Job.SHADOWER:
+    case Job.BOWMASTER:
+    case Job.MARKSMAN:
+      levelUpHP = 22;
+      break;
+    case Job.CORSAIR:
+    case Job.BUCCANEER:
+      levelUpHP = 25;
+      break;
+    case Job.DARK_KNIGHT:
+    case Job.PALADIN:
+    case Job.HERO:
+      levelUpHP = 26;
+      break;
+    case Job.MAGICIAN:
+      levelUpHP = 12;
+      break;
+  }
+  if (WARRIOR.includes(job) && level > 14) {
+    levelUpHP += 40;
+  }
+  return levelUpHP;
+};
+
+const MP_MAP = (() => {
+  const map = Object.keys(Job).reduce((acc, job) => {
+    acc[job as Job] = { 1: 5 };
+    for (let level = 2; level <= 200; level++) {
+      acc[job as Job][level] =
+        acc[job as Job][level - 1] + getLevelUpMP(job as Job, level);
+    }
+    return acc;
+  }, {} as Record<Job, Record<number, number>>);
+
+  return map;
+})();
+
+const HP_MAP = (() => {
+  const map = Object.keys(Job).reduce((acc, job) => {
+    acc[job as Job] = { 1: 50 };
+    for (let level = 2; level <= 10; level++) {
+      acc[job as Job][level] = 14 * clamp(level, 1, 200) + 36;
+    }
+    for (let level = 11; level <= 200; level++) {
+      if (job === Job.BEGINNER) {
+        acc[job as Job][level] = 14 * clamp(level, 1, 200) + 36;
+      } else {
+        acc[job as Job][level] =
+          acc[job as Job][level - 1] + getLevelUpHP(job as Job, level);
+      }
+    }
+    return acc;
+  }, {} as Record<Job, Record<number, number>>);
+
+  return map;
+})();
 
 export const getMinimumMP = (job: Job, level: number) => {
   switch (job) {
@@ -29,93 +125,18 @@ export const getMinimumMP = (job: Job, level: number) => {
 };
 
 export const getMP = (job: Job, level: number, int: number = 4) => {
-  let bonusMP = 11;
-  if (Job.BEGINNER === job) {
-    return Math.round(INITIAL_MP + (clamp(level, 1, 200) - 1) * bonusMP);
-  }
-  const firstJobMP = INITIAL_MP + (clamp(level, 1, 9) - 1) * bonusMP;
-  if (level < 10) {
-    return firstJobMP;
-  }
+  const mp = MP_MAP[job][level];
+  const intBonus = Math.floor(int / 10);
 
-  switch (job) {
-    case Job.NIGHT_LORD:
-    case Job.SHADOWER:
-    case Job.BOWMASTER:
-    case Job.MARKSMAN:
-      bonusMP = 15;
-      break;
-    case Job.CORSAIR:
-    case Job.BUCCANEER:
-      bonusMP = 20;
-      break;
-    case Job.DARK_KNIGHT:
-    case Job.PALADIN:
-    case Job.HERO:
-      bonusMP = 5;
-      break;
-    case Job.MAGICIAN:
-      bonusMP = 23;
-      break;
-  }
-
-  bonusMP += Math.floor(int / 10);
-
-  if (job === Job.MAGICIAN) {
-    let mageMP = firstJobMP + (clamp(level, 10, 14) - 1) * bonusMP;
-    if (level > 14) {
-      mageMP = mageMP + (clamp(level, 15, 200) - 1) * (bonusMP + 20);
-    }
-    return mageMP;
-  }
-
-  return firstJobMP + (clamp(level, 10, 200) - 1) * bonusMP;
+  return mp + intBonus;
 };
 
 export const getHP = (job: Job, level: number) => {
-  if (Job.BEGINNER === job) {
-    return 14 * clamp(level, 1, 200) + 36;
-  }
-
-  const firstJobHP = 14 * clamp(level, 1, 10) + 36;
-  if (level < 10) {
-    return firstJobHP;
-  }
-
-  let bonusHP = 22;
   const advancementBonusHP = getAdvancementBonusHP(job, level);
-  switch (job) {
-    case Job.NIGHT_LORD:
-    case Job.SHADOWER:
-    case Job.BOWMASTER:
-    case Job.MARKSMAN:
-      bonusHP = 22;
-      break;
-    case Job.CORSAIR:
-    case Job.BUCCANEER:
-      bonusHP = 25;
-      break;
-    case Job.DARK_KNIGHT:
-    case Job.PALADIN:
-    case Job.HERO:
-      bonusHP = 26;
-      break;
-    case Job.MAGICIAN:
-      bonusHP = 12;
-      break;
-  }
 
-  if (WARRIOR.includes(job)) {
-    let warriorHP = firstJobHP + (clamp(level, 10, 14) - 1) * bonusHP;
-    if (level > 14) {
-      warriorHP = warriorHP + (clamp(level, 15, 200) - 1) * (bonusHP + 40);
-    }
-    return warriorHP + advancementBonusHP;
-  }
+  const hp = HP_MAP[job][level];
 
-  return (
-    firstJobHP + (clamp(level, 10, 200) - 1) * bonusHP + advancementBonusHP
-  );
+  return hp + advancementBonusHP;
 };
 
 export const getAdvancementBonusHP = (job: Job, level: number) => {

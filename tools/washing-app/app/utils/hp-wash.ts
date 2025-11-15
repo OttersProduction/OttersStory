@@ -53,6 +53,8 @@ const simulateWashing = (
     if (targetInt > player.stats.int) {
       const intToAdd = clamp(targetInt - player.stats.int, 0, player.stats.ap);
       player.addStats({ int: intToAdd });
+    } else {
+      player.addStats({ [mainStatKey]: player.stats.ap });
     }
   }
 
