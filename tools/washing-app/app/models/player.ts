@@ -42,6 +42,31 @@ export class Player {
       this.stats = args;
     }
     this.hpQuests = hpQuests;
+
+    // Calculate base HP/MP for the starting level to preserve washed gains
+    if (args) {
+      // Calculate base HP for the starting level (without quest HP, since we don't know
+      // which quests were already completed - that info is lost)
+      // The hpGain will include both washed HP and HP from quests already completed
+      const baseHP = getHP(job, level);
+
+      // Calculate base MP for the starting level with current INT
+      const baseMP = getMP(job, level, args.int);
+
+      // Calculate washed gains: difference between user's input and base values
+      // This preserves the washed HP/MP through level ups
+      // Note: hpGain includes both washed HP and HP from quests already completed
+      this.hpGain = args.naturalHP - baseHP;
+      this.mpGain = args.naturalMP - baseMP;
+
+      // Set naturalHP and naturalMP to base values (not user's input)
+      // The total HP/MP will be naturalHP/MP + hpGain/mpGain
+      this.stats.naturalHP = baseHP;
+      this.stats.naturalMP = baseMP;
+
+      // additionalHP starts at 0 and will accumulate as we level up and complete quests
+      this.additionalHP = 0;
+    }
   }
 
   public levelUp() {
@@ -78,6 +103,15 @@ export class Player {
 
   get hpQuestsList(): HPQuest[] {
     return [...this.hpQuests];
+  }
+
+  // Getters to expose gains for cloning
+  get currentHPGain(): number {
+    return this.hpGain;
+  }
+
+  get currentMPGain(): number {
+    return this.mpGain;
   }
 
   public addStats(args: Partial<Stats>) {

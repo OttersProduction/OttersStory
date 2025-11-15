@@ -86,10 +86,15 @@ const findOptimalInt = (
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
     // Create a fresh player for each simulation to avoid mutation
+    // Use original HP/MP values to preserve washed gains
     const freshPlayer = new Player(
       player.job,
       player.level,
-      { ...player.stats },
+      {
+        ...player.stats,
+        naturalHP: player.hp,
+        naturalMP: player.mp,
+      },
       player.hpQuestsList
     );
     const { player: simulatedPlayer } = simulateWashing(
@@ -126,10 +131,15 @@ export const createHPWashPlan = (
       : findOptimalInt(player, targetLevel, targetHP, washingMode);
 
   // Create a fresh player for the final simulation to avoid mutation
+  // Use original HP/MP values to preserve washed gains
   const freshPlayer = new Player(
     player.job,
     player.level,
-    { ...player.stats },
+    {
+      ...player.stats,
+      naturalHP: player.hp,
+      naturalMP: player.mp,
+    },
     player.hpQuestsList
   );
   const {
