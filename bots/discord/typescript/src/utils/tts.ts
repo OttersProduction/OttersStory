@@ -14,10 +14,10 @@ export class TTS {
     try {
       if (content && content.length > 0) {
         const audio = await this.elevenLabs.textToSpeech.convert(
-          "56AoDkrOh6qfVPDXZ7Pt",
+          "Z3R5wn05IrDiVCyEkUrK",
           {
             text: content,
-            modelId: "eleven_flash_v2_5",
+            modelId: "eleven_ttv_v3",
             outputFormat: "mp3_44100_128",
           }
         );
