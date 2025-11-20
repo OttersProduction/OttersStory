@@ -272,10 +272,8 @@ export class VoiceConnectionManager {
       metadata: options?.metadata,
     });
 
-    // Play the resource
+    // Play the audio resource
     audioPlayer.play(resource);
-
-    console.log(`[Voice Manager] Playing stream in guild ${guildId}`);
 
     return resource;
   }

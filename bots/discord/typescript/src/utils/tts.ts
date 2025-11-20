@@ -10,36 +10,41 @@ export class TTS {
     });
   }
 
+  /**
+   * Generate TTS audio stream from text content
+   * @param content - Text to convert to speech
+   * @returns Readable stream of MP3 audio data, or undefined if error/empty
+   */
   public async play(content: string): Promise<Readable | undefined> {
     try {
-      if (content && content.length > 0) {
-        const audio = await this.elevenLabs.textToDialogue.convert({
-          inputs: [
-            {
-              text:content,
-              voiceId:'Z3R5wn05IrDiVCyEkUrK'
-            }
-          ]
-        }
-        
-        );
-
-        const reader = audio.getReader();
-        const stream = new Readable({
-          async read() {
-            const { done, value } = await reader.read();
-            if (done) {
-              this.push(null);
-            } else {
-              this.push(value);
-            }
-          },
-        });
-        return stream;
+      if (!content || content.length === 0) {
+        return undefined;
       }
-      return undefined;
+
+      // Generate audio using ElevenLabs API (MP3 format available on all tiers)
+      const audio = await this.elevenLabs.textToDialogue.convert({
+        outputFormat: "mp3_44100_128",
+        modelId: "eleven_v3",
+        inputs: [
+          {
+            text: content,
+            voiceId: "Z3R5wn05IrDiVCyEkUrK",
+          },
+        ],
+      });
+
+      // Convert Web ReadableStream to Node.js Readable stream
+      const stream = Readable.fromWeb(audio as any);
+
+      // Handle stream errors
+      stream.on("error", (error) => {
+        console.error("[TTS] Stream error:", error);
+      });
+
+      return stream;
     } catch (error) {
-      console.error("Error handling message:", error);
+      console.error("[TTS] Error generating audio:", error);
+      return undefined;
     }
   }
 }
