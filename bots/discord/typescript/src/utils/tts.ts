@@ -13,13 +13,15 @@ export class TTS {
   public async play(content: string): Promise<Readable | undefined> {
     try {
       if (content && content.length > 0) {
-        const audio = await this.elevenLabs.textToSpeech.convert(
-          "Z3R5wn05IrDiVCyEkUrK",
-          {
-            text: content,
-            modelId: "eleven_ttv_v3",
-            outputFormat: "mp3_44100_128",
-          }
+        const audio = await this.elevenLabs.textToDialogue.convert({
+          inputs: [
+            {
+              text:content,
+              voiceId:'Z3R5wn05IrDiVCyEkUrK'
+            }
+          ]
+        }
+        
         );
 
         const reader = audio.getReader();
