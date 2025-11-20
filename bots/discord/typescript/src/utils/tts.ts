@@ -17,6 +17,12 @@ export class TTS {
    */
   public async play(content: string): Promise<Readable | undefined> {
     try {
+
+      if (!process.env.ELEVENLABS_VOICE_ID) {
+        console.error("ELEVENLABS_VOICE_ID is not set");
+        return undefined;
+      }
+
       if (!content || content.length === 0) {
         return undefined;
       }
@@ -28,7 +34,7 @@ export class TTS {
         inputs: [
           {
             text: content,
-            voiceId: "Z3R5wn05IrDiVCyEkUrK",
+            voiceId: process.env.ELEVENLABS_VOICE_ID,
           },
         ],
       });
