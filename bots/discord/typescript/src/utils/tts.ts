@@ -30,7 +30,7 @@ export class TTS {
       // Generate audio using ElevenLabs API (MP3 format available on all tiers)
       const audio = await this.elevenLabs.textToDialogue.convert({
         outputFormat: "mp3_44100_128",
-        modelId: "eleven_v3",
+        modelId: "eleven_turbo_v2_5",
         inputs: [
           {
             text: content,
