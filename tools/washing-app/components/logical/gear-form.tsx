@@ -1,12 +1,10 @@
 import { Control, useFieldArray } from "react-hook-form";
-import { FormValues } from "@/components/logical/form";
 import { GearSlot } from "@/app/models/gear";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,10 +15,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import z from "zod";
+
+
+export const characterGearSlotEnum = z.enum([
+  GearSlot.Hat,
+  GearSlot.Face,
+  GearSlot.Eye,
+  GearSlot.Pendant,
+  GearSlot.Top,
+  GearSlot.Bottom,
+  GearSlot.Overall,
+  GearSlot.Earring,
+  GearSlot.Shoulder,
+  GearSlot.Gloves,
+  GearSlot.Cape,
+  GearSlot.Shoes,
+  GearSlot.Belt,
+  GearSlot.Ring1,
+  GearSlot.Ring2,
+  GearSlot.Ring3,
+  GearSlot.Ring4,
+]);
+
+export const characterGearItemSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  name: z.string().min(1, "Item name is required"),
+  slot: characterGearSlotEnum,
+  requiredLevel: z
+    .number()
+    .min(1, { message: "Required level must be at least 1" })
+    .max(200, { message: "Required level cannot exceed 200" }),
+  int: z
+    .number()
+    .min(0, { message: "INT must be at least 0" })
+    .max(999, { message: "INT cannot exceed 999" }),
+});
+
+export const gearSchema = z.object({
+
+  gearItems: z.array(characterGearItemSchema),
+});
+
+export type GearFormValues = z.infer<typeof gearSchema>;
+
+export const GEAR_DEFAULTS: GearFormValues = {
+ 
+  gearItems: [],
+};
+
+
 
 interface GearFormProps {
-  control: Control<FormValues>;
+  control: Control<any>;
 }
+
 
 export const GearForm = ({ control }: GearFormProps) => {
   const { fields, append, remove } = useFieldArray({
@@ -68,7 +117,6 @@ export const GearForm = ({ control }: GearFormProps) => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -89,7 +137,6 @@ export const GearForm = ({ control }: GearFormProps) => {
                         placeholder="Zakum Helmet"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -117,7 +164,6 @@ export const GearForm = ({ control }: GearFormProps) => {
                         }
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -145,7 +191,6 @@ export const GearForm = ({ control }: GearFormProps) => {
                         }
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -154,7 +199,7 @@ export const GearForm = ({ control }: GearFormProps) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="ml-auto"
+                className="ml-auto mt-auto"
                 onClick={() => remove(index)}
               >
                 Remove
