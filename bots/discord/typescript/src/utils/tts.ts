@@ -27,16 +27,11 @@ export class TTS {
         return undefined;
       }
 
-      // Generate audio using ElevenLabs API (MP3 format available on all tiers)
-      const audio = await this.elevenLabs.textToDialogue.convert({
-        outputFormat: "mp3_44100_128",
+      // Generate audio using ElevenLabs Text-to-Speech API with turbo v2.5 model
+      const audio = await this.elevenLabs.textToSpeech.convert(process.env.ELEVENLABS_VOICE_ID,  {
         modelId: "eleven_turbo_v2_5",
-        inputs: [
-          {
-            text: content,
-            voiceId: process.env.ELEVENLABS_VOICE_ID,
-          },
-        ],
+        outputFormat: "mp3_44100_128",
+        text: content,
       });
 
       // Convert Web ReadableStream to Node.js Readable stream
