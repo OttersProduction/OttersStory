@@ -6,6 +6,7 @@ import {
 } from "@/app/utils/wash-helper";
 import { HPQuest } from "@/app/models/hp-quest";
 import { Job } from "@/app/models/job";
+import { GearItem, GearSlot } from "@/app/models/gear";
 
 export const INITIAL_MP = 5;
 export const INITIAL_HP = 50;
@@ -35,10 +36,19 @@ export class Player {
   public level: number = 1;
   private hpQuests: HPQuest[] = [];
   private additionalHP: number = 0;
+  public inventory: GearItem[] = [];
+  public equipped: GearItem[] = [];
 
-  constructor(job: Job, level: number, args?: Stats, hpQuests: HPQuest[] = []) {
+  constructor(
+    job: Job,
+    level: number,
+    args?: Stats,
+    hpQuests: HPQuest[] = [],
+    inventory: GearItem[] = []
+  ) {
     this.job = job;
     this.level = level;
+    this.inventory = inventory;
     if (args) {
       this.stats = args;
     }
@@ -68,6 +78,8 @@ export class Player {
       // additionalHP starts at 0 and will accumulate as we level up and complete quests
       this.additionalHP = 0;
     }
+    this.updateEquippedForLevel();
+
   }
 
   public levelUp() {
@@ -75,6 +87,9 @@ export class Player {
       this.level++;
       this.stats.ap += 5;
     }
+
+    this.updateEquippedForLevel();
+
     const { total_hp, breakdown } = getQuestHP(
       this.hpQuests,
       this.job,
@@ -86,7 +101,7 @@ export class Player {
     );
 
     this.stats.naturalHP = getHP(this.job, this.level) + this.additionalHP;
-    const intBonus = Math.floor(this.stats.int / 10);
+    const intBonus = Math.floor(this.totalInt / 10);
     this.mpGain += intBonus;
     this.stats.naturalMP = getMP(this.job, this.level);
   }
@@ -110,6 +125,14 @@ export class Player {
     return [...this.hpQuests];
   }
 
+  get bonusIntFromGear(): number {
+    return this.equipped.reduce((sum, item) => sum + item.int, 0);
+  }
+
+  get totalInt(): number {
+    return this.stats.int + this.bonusIntFromGear;
+  }
+
   // Getters to expose gains for cloning
   get currentHPGain(): number {
     return this.hpGain;
@@ -130,5 +153,38 @@ export class Player {
     this.stats.dex += args.dex ?? 0;
     this.stats.int += args.int ?? 0;
     this.stats.luk += args.luk ?? 0;
+  }
+
+  private updateEquippedForLevel() {
+    if (!this.inventory.length) {
+      this.equipped = [];
+      return;
+    }
+
+    const bySlot = new Map<GearSlot, GearItem[]>();
+    for (const item of this.inventory) {
+      if (!bySlot.has(item.slot)) {
+        bySlot.set(item.slot, []);
+      }
+      bySlot.get(item.slot)!.push(item);
+    }
+
+    const newEquipped: GearItem[] = [];
+
+    bySlot.forEach((items, slot) => {
+      const candidates = items.filter((item) => item.requiredLevel <= this.level);
+      if (!candidates.length) return;
+
+      candidates.sort((a, b) => {
+        if (b.int !== a.int) return b.int - a.int;
+        if (a.requiredLevel !== b.requiredLevel)
+          return a.requiredLevel - b.requiredLevel;
+       return 0
+      });
+
+      newEquipped.push(candidates[0]);
+    });
+
+    this.equipped = newEquipped;
   }
 }

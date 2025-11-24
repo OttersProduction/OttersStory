@@ -27,7 +27,7 @@ const simulateWashing = (
       hp: player.hp,
       mp: player.mp,
 
-      int: player.stats.int,
+      int: player.totalInt,
       [mainStatKey]: player.stats[mainStatKey],
     });
     player.levelUp();
@@ -63,7 +63,7 @@ const simulateWashing = (
     hp: player.hp,
     mp: player.mp,
 
-    int: player.stats.int,
+    int: player.totalInt,
     [mainStatKey]: player.stats[mainStatKey],
   });
   // Only count INT-based AP resets if washing is enabled
@@ -97,16 +97,11 @@ const findOptimalInt = (
     const mid = Math.floor((low + high) / 2);
     // Create a fresh player for each simulation to avoid mutation
     // Use original HP/MP values to preserve washed gains
-    const freshPlayer = new Player(
-      player.job,
-      player.level,
-      {
-        ...player.stats,
-        naturalHP: player.hp,
-        naturalMP: player.mp,
-      },
-      player.hpQuestsList
-    );
+    const freshPlayer = new Player(player.job, player.level, {
+      ...player.stats,
+      naturalHP: player.hp,
+      naturalMP: player.mp,
+    }, player.hpQuestsList, player.inventory);
     const { player: simulatedPlayer } = simulateWashing(
       freshPlayer,
       targetLevel,
@@ -150,7 +145,8 @@ export const createHPWashPlan = (
       naturalHP: player.hp,
       naturalMP: player.mp,
     },
-    player.hpQuestsList
+    player.hpQuestsList,
+    player.inventory
   );
   const {
     data,
@@ -165,7 +161,9 @@ export const createHPWashPlan = (
     hpDifference,
     finalHP: simulatedPlayer.hp,
     finalMP: simulatedPlayer.mp,
-    finalInt: simulatedPlayer.stats.int,
+    finalInt: simulatedPlayer.totalInt,
+    baseInt: simulatedPlayer.stats.int,
+    gearInt: simulatedPlayer.bonusIntFromGear,
     totalAPResets,
   };
 };

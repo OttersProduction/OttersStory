@@ -26,9 +26,45 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { GearSlot } from "@/app/models/gear";
+import { GearForm } from "@/components/logical/gear-form";
+
+const gearSlotEnum = z.enum([
+  GearSlot.Hat,
+  GearSlot.Face,
+  GearSlot.Eye,
+  GearSlot.Pendant,
+  GearSlot.Top,
+  GearSlot.Bottom,
+  GearSlot.Overall,
+  GearSlot.Earring,
+  GearSlot.Shoulder,
+  GearSlot.Gloves,
+  GearSlot.Cape,
+  GearSlot.Shoes,
+  GearSlot.Belt,
+  GearSlot.Ring1,
+  GearSlot.Ring2,
+  GearSlot.Ring3,
+  GearSlot.Ring4,
+]);
+
+const gearItemSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  name: z.string().min(1, "Item name is required"),
+  slot: gearSlotEnum,
+  requiredLevel: z
+    .number()
+    .min(1, { message: "Required level must be at least 1" })
+    .max(200, { message: "Required level cannot exceed 200" }),
+  int: z
+    .number()
+    .min(0, { message: "INT must be at least 0" })
+    .max(999, { message: "INT cannot exceed 999" }),
+});
 
 const formSchema = z.object({
-  job: z.custom<Job>((val) => val !== undefined, {
+  job: z.custom<Job>((val: unknown) => val !== undefined, {
     message: "Please select a job",
   }),
   level: z
@@ -64,6 +100,7 @@ const formSchema = z.object({
     .min(0, { message: "AP must be at least 0" })
     .max(9999, { message: "AP cannot exceed 9999" }),
   hpQuests: z.array(z.enum(HPQuest)),
+  gearItems: z.array(gearItemSchema),
   targetLevel: z
     .number()
     .min(4, { message: "Level must be at least 4" })
@@ -93,6 +130,7 @@ export const DEFAULT_FORM_VALUES: FormValues = {
   luk: 4,
   ap: 9,
   hpQuests: [],
+  gearItems: [],
   targetLevel: DEFAULT_PREFERENCES.levelGoal,
   targetHP: DEFAULT_PREFERENCES.hpGoal,
   targetInt: undefined,
@@ -334,13 +372,7 @@ export const InitalForm = ({ onSubmit }: InitalFormProps) => {
                   </div>
                 </div>
 
-                {/* Gear Section */}
-                <div className="pt-4 border-t border-border">
-                  <h3 className="text-xs font-semibold text-foreground mb-4">
-                    Gear
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Coming soon</p>
-                </div>
+                <GearForm control={form.control} />
               </div>
             </CardContent>
           </Card>
@@ -518,7 +550,7 @@ export const InitalForm = ({ onSubmit }: InitalFormProps) => {
                                 id={quest}
                                 value={quest}
                                 checked={field.value.includes(quest)}
-                                onCheckedChange={(checked) => {
+                                onCheckedChange={(checked: boolean) => {
                                   if (checked) {
                                     field.onChange([...field.value, quest]);
                                   } else {

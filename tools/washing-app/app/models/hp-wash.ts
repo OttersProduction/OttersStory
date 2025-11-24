@@ -11,4 +11,6 @@ export interface HPWashPlan {
   finalHP: number;
   finalMP: number;
   finalInt: number;
+  baseInt: number;
+  gearInt: number;
 }

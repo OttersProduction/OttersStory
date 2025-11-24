@@ -9,6 +9,8 @@ export const PlanBreakdown = ({
   finalHP,
   finalMP,
   finalInt,
+  baseInt,
+  gearInt,
 }: PlanBreakdownProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -42,8 +44,11 @@ export const PlanBreakdown = ({
       <Card>
         <CardContent className="flex flex-col items-center justify-center">
           <div className="text-sm text-muted-foreground">Final INT</div>
-          <div className="tracking-tight text-3xl font-semibold tabular-nums">
+          <div className="tracking-tight text-lg font-semibold tabular-nums text-center">
             {formatNumber(finalInt)}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            ({formatNumber(baseInt)} base / {formatNumber(gearInt)} gear)
           </div>
         </CardContent>
       </Card>

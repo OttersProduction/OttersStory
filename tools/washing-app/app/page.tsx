@@ -15,6 +15,7 @@ import { createHPWashPlan } from "./utils/hp-wash";
 import { PlanBreakdown } from "@/components/logical/plan-breakdown";
 import { FormValues, InitalForm } from "@/components/logical/form";
 import { Player } from "@/app/models/player";
+import { GearItem, GearSlot } from "@/app/models/gear";
 
 export default function Home() {
   const [formvalues, setFormvalues] = useState<FormValues | undefined>(
@@ -27,6 +28,14 @@ export default function Home() {
 
   const plan = useMemo(() => {
     if (!formvalues) return undefined;
+
+    const inventory: GearItem[] = formvalues.gearItems.map((item, index) => ({
+      id: item.id ?? `${item.slot}-${index}`,
+      name: item.name,
+      slot: item.slot as GearSlot,
+      requiredLevel: item.requiredLevel,
+      int: item.int,
+    }));
 
     // Create Player instance from form values
     const player = new Player(
@@ -41,7 +50,8 @@ export default function Home() {
         naturalMP: formvalues.mp,
         ap: formvalues.ap,
       },
-      formvalues.hpQuests
+      formvalues.hpQuests,
+      inventory
     );
 
     return createHPWashPlan(
