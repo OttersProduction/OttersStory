@@ -63,7 +63,10 @@ export const getLevelUpHP = (job: Job, level: number) => {
   if (WARRIOR.includes(job) && level > 14) {
     levelUpHP += 40;
   }
-  return levelUpHP;
+  if(job === Job.BUCCANEER && level > 33){
+    levelUpHP += 30;
+  }
+  return levelUpHP ;
 };
 
 const MP_MAP = (() => {
