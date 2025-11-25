@@ -155,11 +155,11 @@ export const SettingsForm = ({ control }: SettingsFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <div className="flex gap-2">
+                    <div className="grid [grid-template-areas:'hp_mp'_'none_none'] sm:[grid-template-areas:'hp_none_mp'] gap-2">
                       <Button
                         type="button"
                         variant={field.value === "hp" ? "default" : "outline"}
-                        className="flex-1"
+                        className="[grid-area:hp]"
                         onClick={() => field.onChange("hp")}
                       >
                         HP Washing
@@ -167,7 +167,7 @@ export const SettingsForm = ({ control }: SettingsFormProps) => {
                       <Button
                         type="button"
                         variant={field.value === "none" ? "default" : "outline"}
-                        className="flex-1"
+                        className="[grid-area:none]"
                         onClick={() => field.onChange("none")}
                       >
                         Nothing
@@ -175,7 +175,7 @@ export const SettingsForm = ({ control }: SettingsFormProps) => {
                       <Button
                         type="button"
                         variant={field.value === "mp" ? "default" : "outline"}
-                        className="flex-1"
+                        className="[grid-area:mp]"
                         onClick={() => field.onChange("mp")}
                       >
                         MP Washing

@@ -43,9 +43,9 @@ export const InitalForm = ({ onSubmit }: InitalFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-[1fr_auto] gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)]">
           <CharacterForm control={form.control} />
-          <div className="flex gap-4 flex-col">
+          <div className="flex flex-col gap-4">
             <SettingsForm control={form.control} />
             <BonusesForm control={form.control} />
           </div>

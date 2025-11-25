@@ -50,7 +50,7 @@ export const BonusesForm = ({ control }: BonusesFormProps) => {
             <FormItem className="w-full sm:w-xs">
               <FormLabel>HP Quests</FormLabel>
               <FormControl>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                   {Object.values(HPQuest).map((quest) => (
                     <div key={quest} className="flex items-center gap-2">
                       <Checkbox

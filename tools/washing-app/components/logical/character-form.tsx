@@ -93,7 +93,7 @@ export const CharacterForm = ({ control }: CharacterFormProps) => {
       <CardContent>
         <div className="space-y-4">
           {/* Character Info Section */}
-          <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
+          <div className="grid grid-cols-1 gap-4 items-end sm:grid-cols-[minmax(0,1.5fr)_auto]">
             <FormField
               control={control}
               name="job"
@@ -133,8 +133,8 @@ export const CharacterForm = ({ control }: CharacterFormProps) => {
           </div>
 
           {/* Vitals and Stats Combined */}
-          <div className="flex gap-4 pt-4 border-t border-border">
-            <div className="space-y-4">
+          <div className="flex flex-col gap-4 pt-4 border-t border-border md:flex-row">
+            <div className="space-y-4 md:min-w-[160px]">
               <h3 className="text-xs font-semibold text-foreground">Vitals</h3>
               <div className="space-y-4">
                 <FormField
@@ -183,9 +183,9 @@ export const CharacterForm = ({ control }: CharacterFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1">
               <h3 className="text-xs font-semibold text-foreground">Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <FormField
                   control={control}
                   name="str"
