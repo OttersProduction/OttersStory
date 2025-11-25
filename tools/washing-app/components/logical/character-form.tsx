@@ -21,46 +21,45 @@ import { Input } from "@/components/ui/input";
 import { GearForm } from "@/components/logical/gear-form";
 import { gearSchema, GEAR_DEFAULTS } from "@/components/logical/gear-form";
 
-
-
-
-export const characterSchema = z.object({
-  job: z.custom<Job>((val: unknown) => val !== undefined, {
-    message: "Please select a job",
-  }),
-  level: z
-    .number()
-    .min(1, { message: "Level must be at least 1" })
-    .max(200, { message: "Level cannot exceed 200" }),
-  hp: z
-    .number()
-    .min(0, { message: "HP must be at least 0" })
-    .max(99999, { message: "HP cannot exceed 99999" }),
-  mp: z
-    .number()
-    .min(0, { message: "MP must be at least 0" })
-    .max(99999, { message: "MP cannot exceed 99999" }),
-  str: z
-    .number()
-    .min(4, { message: "STR must be at least 4" })
-    .max(999, { message: "STR cannot exceed 999" }),
-  dex: z
-    .number()
-    .min(4, { message: "DEX must be at least 4" })
-    .max(999, { message: "DEX cannot exceed 999" }),
-  int: z
-    .number()
-    .min(4, { message: "INT must be at least 4" })
-    .max(999, { message: "INT cannot exceed 999" }),
-  luk: z
-    .number()
-    .min(4, { message: "LUK must be at least 4" })
-    .max(999, { message: "LUK cannot exceed 999" }),
-  ap: z
-    .number()
-    .min(0, { message: "AP must be at least 0" })
-    .max(9999, { message: "AP cannot exceed 9999" }),
-}).merge(gearSchema);
+export const characterSchema = z
+  .object({
+    job: z.custom<Job>((val: unknown) => val !== undefined, {
+      message: "Please select a job",
+    }),
+    level: z
+      .number()
+      .min(1, { message: "Level must be at least 1" })
+      .max(200, { message: "Level cannot exceed 200" }),
+    hp: z
+      .number()
+      .min(0, { message: "HP must be at least 0" })
+      .max(99999, { message: "HP cannot exceed 99999" }),
+    mp: z
+      .number()
+      .min(0, { message: "MP must be at least 0" })
+      .max(99999, { message: "MP cannot exceed 99999" }),
+    str: z
+      .number()
+      .min(4, { message: "STR must be at least 4" })
+      .max(999, { message: "STR cannot exceed 999" }),
+    dex: z
+      .number()
+      .min(4, { message: "DEX must be at least 4" })
+      .max(999, { message: "DEX cannot exceed 999" }),
+    int: z
+      .number()
+      .min(4, { message: "INT must be at least 4" })
+      .max(999, { message: "INT cannot exceed 999" }),
+    luk: z
+      .number()
+      .min(4, { message: "LUK must be at least 4" })
+      .max(999, { message: "LUK cannot exceed 999" }),
+    ap: z
+      .number()
+      .min(0, { message: "AP must be at least 0" })
+      .max(9999, { message: "AP cannot exceed 9999" }),
+  })
+  .merge(gearSchema);
 
 export type CharacterFormValues = z.infer<typeof characterSchema>;
 
@@ -93,18 +92,15 @@ export const CharacterForm = ({ control }: CharacterFormProps) => {
       <CardContent>
         <div className="space-y-4">
           {/* Character Info Section */}
-          <div className="grid grid-cols-1 gap-4 items-end sm:grid-cols-[minmax(0,1.5fr)_auto]">
+          <div className="flex gap-4">
             <FormField
               control={control}
               name="job"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex-1">
                   <FormLabel className="text-xs">Class</FormLabel>
                   <FormControl>
-                    <JobSelect
-                      job={field.value}
-                      onSelectJob={field.onChange}
-                    />
+                    <JobSelect job={field.value} onSelectJob={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -307,5 +303,3 @@ export const CharacterForm = ({ control }: CharacterFormProps) => {
     </Card>
   );
 };
-
-

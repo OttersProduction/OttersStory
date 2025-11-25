@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import z from "zod";
+import { Trash2Icon } from "lucide-react";
 
 // Allow any defined GearSlot value in the schema (Hat, Face, Weapon, Shield, etc.)
 export const characterGearSlotEnum = z.nativeEnum(GearSlot);
@@ -66,7 +67,7 @@ export const GearForm = ({ control }: GearFormProps) => {
             Add INT gear items to include them in MP gain calculations.
           </p>
         )}
-        <div className="space-y-2 divide-y divide-border px-3">
+        <div className="space-y-2 divide-y divide-border sm:px-3">
           {fields.map((field, index) => (
             <div
               key={field.id}
@@ -144,7 +145,7 @@ export const GearForm = ({ control }: GearFormProps) => {
                 control={control}
                 name={`gearItems.${index}.int`}
                 render={({ field }) => (
-                  <FormItem className="w-20">
+                  <FormItem className="sm:w-20 w-14">
                     <FormLabel className="text-[10px] text-muted-foreground">
                       INT
                     </FormLabel>
@@ -169,12 +170,12 @@ export const GearForm = ({ control }: GearFormProps) => {
 
               <Button
                 type="button"
-                variant="outline"
+                variant="destructive"
                 size="sm"
                 className="ml-auto mt-auto"
                 onClick={() => remove(index)}
               >
-                Remove
+                <Trash2Icon className="w-4 h-4" />
               </Button>
             </div>
           ))}
