@@ -44,7 +44,7 @@ export const PlanBreakdown = ({
       <Card>
         <CardContent className="flex flex-col items-center justify-center">
           <div className="text-sm text-muted-foreground">Final INT</div>
-          <div className="tracking-tight text-lg font-semibold tabular-nums text-center">
+          <div className="tracking-tight text-3xl font-semibold tabular-nums">
             {formatNumber(finalInt)}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
