@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -64,11 +66,11 @@ export const GearForm = ({ control }: GearFormProps) => {
             Add INT gear items to include them in MP gain calculations.
           </p>
         )}
-        <div className="space-y-2">
+        <div className="space-y-2 divide-y divide-border px-3">
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-wrap items-center gap-2 rounded-md border border-border px-3 py-2"
+              className="flex flex-wrap items-center gap-3 pb-6"
             >
               <FormField
                 control={control}
@@ -111,15 +113,26 @@ export const GearForm = ({ control }: GearFormProps) => {
                           <SelectValue placeholder="Select item" />
                         </SelectTrigger>
                         <SelectContent>
-                          {gearItems.map((item) => (
-                            <SelectItem
-                              key={item.id}
-                              value={String(item.id)}
-                            >
-                              {item.name} (Lv {item.requiredLevel}, INT{" "}
-                              {item.int})
-                            </SelectItem>
-                          ))}
+                          {Object.values(GearSlot).map((slot) => {
+                            const itemsForSlot = gearItems
+                              .filter((item) => item.slot === slot)
+                              
+                            if (!itemsForSlot.length) return null;
+
+                            return (
+                              <SelectGroup key={slot}>
+                                <SelectLabel>{slot}</SelectLabel>
+                                {itemsForSlot.map((item) => (
+                                  <SelectItem
+                                    key={item.id}
+                                    value={String(item.id)}
+                                  >
+                                    {item.name} (Lv {item.requiredLevel})
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     </FormControl>

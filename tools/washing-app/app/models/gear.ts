@@ -28,6 +28,28 @@ export interface GearItem {
   int: number;
 }
 
+const SLOT_ORDER: GearSlot[] = [
+  GearSlot.Hat,
+  GearSlot.Face,
+  GearSlot.Eye,
+  GearSlot.Pendant,
+  GearSlot.Top,
+  GearSlot.Bottom,
+  GearSlot.Overall,
+  GearSlot.Earring,
+  GearSlot.Shoulder,
+  GearSlot.Gloves,
+  GearSlot.Weapon,
+  GearSlot.Shield,
+  GearSlot.Cape,
+  GearSlot.Shoes,
+  GearSlot.Belt,
+  GearSlot.Ring1,
+  GearSlot.Ring2,
+  GearSlot.Ring3,
+  GearSlot.Ring4,
+];
+
 export const gearItems: GearItem[] = [
   {
     id: 1372005,
@@ -133,4 +155,17 @@ export const gearItems: GearItem[] = [
     requiredLevel: 50,
     int: 5,
   },
-];
+].sort((a, b) => {
+  const slotIndexA = SLOT_ORDER.indexOf(a.slot);
+  const slotIndexB = SLOT_ORDER.indexOf(b.slot);
+
+  if (slotIndexA !== slotIndexB) {
+    return slotIndexA - slotIndexB;
+  }
+
+  if (a.requiredLevel !== b.requiredLevel) {
+    return a.requiredLevel - b.requiredLevel;
+  }
+
+  return a.name.localeCompare(b.name);
+});
