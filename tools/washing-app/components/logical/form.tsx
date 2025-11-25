@@ -41,7 +41,7 @@ export const InitalForm = ({ onSubmit }: InitalFormProps) => {
   });
 
   return (
-     <Form {...form}>
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-[1fr_auto] gap-4">
           <CharacterForm control={form.control} />

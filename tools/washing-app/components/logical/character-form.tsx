@@ -2,7 +2,6 @@ import { Control } from "react-hook-form";
 import * as z from "zod";
 import { Job } from "@/app/models/job";
 import { DEFAULT_PREFERENCES } from "@/app/models/defaults";
-import { GearSlot } from "@/app/models/gear";
 import { JobSelect } from "@/components/logical/job-select";
 import {
   Card,

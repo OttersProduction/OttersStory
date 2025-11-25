@@ -171,16 +171,54 @@ export class Player {
 
     const newEquipped: GearItem[] = [];
 
-    bySlot.forEach((items, slot) => {
+    const sortByIntThenLevel = (a: GearItem, b: GearItem) => {
+      if (b.int !== a.int) return b.int - a.int;
+      if (a.requiredLevel !== b.requiredLevel)
+        return a.requiredLevel - b.requiredLevel;
+      return 0;
+    };
+
+    const bestForSlot = (slot: GearSlot): GearItem | undefined => {
+      const items = bySlot.get(slot);
+      if (!items || !items.length) return undefined;
+      const candidates = items.filter((item) => item.requiredLevel <= this.level);
+      if (!candidates.length) return undefined;
+      candidates.sort(sortByIntThenLevel);
+      return candidates[0];
+    };
+
+    const bestOverall = bestForSlot(GearSlot.Overall);
+    const bestTop = bestForSlot(GearSlot.Top);
+    const bestBottom = bestForSlot(GearSlot.Bottom);
+
+    let useOverall = false;
+
+    if (bestOverall && !bestTop && !bestBottom) {
+      useOverall = true;
+    } else if (!bestOverall && (bestTop || bestBottom)) {
+      useOverall = false;
+    } else if (bestOverall && (bestTop || bestBottom)) {
+      const overallInt = bestOverall.int;
+      const topBottomInt = (bestTop?.int ?? 0) + (bestBottom?.int ?? 0);
+      useOverall = overallInt >= topBottomInt;
+    }
+
+    if (useOverall && bestOverall) {
+      newEquipped.push(bestOverall);
+    } else {
+      if (bestTop) newEquipped.push(bestTop);
+      if (bestBottom) newEquipped.push(bestBottom);
+    }
+
+    bySlot.delete(GearSlot.Overall);
+    bySlot.delete(GearSlot.Top);
+    bySlot.delete(GearSlot.Bottom);
+
+    bySlot.forEach((items) => {
       const candidates = items.filter((item) => item.requiredLevel <= this.level);
       if (!candidates.length) return;
 
-      candidates.sort((a, b) => {
-        if (b.int !== a.int) return b.int - a.int;
-        if (a.requiredLevel !== b.requiredLevel)
-          return a.requiredLevel - b.requiredLevel;
-       return 0
-      });
+      candidates.sort(sortByIntThenLevel);
 
       newEquipped.push(candidates[0]);
     });

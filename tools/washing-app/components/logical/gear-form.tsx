@@ -1,5 +1,5 @@
-import { Control, useFieldArray } from "react-hook-form";
-import { GearSlot } from "@/app/models/gear";
+import { Control, useFieldArray, useFormContext } from "react-hook-form";
+import { GearSlot, gearItems } from "@/app/models/gear";
 import {
   FormField,
   FormItem,
@@ -17,26 +17,8 @@ import {
 } from "@/components/ui/select";
 import z from "zod";
 
-
-export const characterGearSlotEnum = z.enum([
-  GearSlot.Hat,
-  GearSlot.Face,
-  GearSlot.Eye,
-  GearSlot.Pendant,
-  GearSlot.Top,
-  GearSlot.Bottom,
-  GearSlot.Overall,
-  GearSlot.Earring,
-  GearSlot.Shoulder,
-  GearSlot.Gloves,
-  GearSlot.Cape,
-  GearSlot.Shoes,
-  GearSlot.Belt,
-  GearSlot.Ring1,
-  GearSlot.Ring2,
-  GearSlot.Ring3,
-  GearSlot.Ring4,
-]);
+// Allow any defined GearSlot value in the schema (Hat, Face, Weapon, Shield, etc.)
+export const characterGearSlotEnum = z.nativeEnum(GearSlot);
 
 export const characterGearItemSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
@@ -53,25 +35,21 @@ export const characterGearItemSchema = z.object({
 });
 
 export const gearSchema = z.object({
-
   gearItems: z.array(characterGearItemSchema),
 });
 
 export type GearFormValues = z.infer<typeof gearSchema>;
 
 export const GEAR_DEFAULTS: GearFormValues = {
- 
   gearItems: [],
 };
-
-
 
 interface GearFormProps {
   control: Control<any>;
 }
 
-
 export const GearForm = ({ control }: GearFormProps) => {
+  const { setValue } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "gearItems",
@@ -94,75 +72,56 @@ export const GearForm = ({ control }: GearFormProps) => {
             >
               <FormField
                 control={control}
-                name={`gearItems.${index}.slot`}
+                name={`gearItems.${index}.id`}
                 render={({ field }) => (
-                  <FormItem className="w-28">
-                    <FormLabel className="text-[10px] text-muted-foreground">
-                      Slot
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger size="sm">
-                          <SelectValue placeholder="Slot" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(GearSlot).map((slot) => (
-                            <SelectItem key={slot} value={slot}>
-                              {slot}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name={`gearItems.${index}.name`}
-                render={({ field }) => (
-                  <FormItem className="min-w-[140px] flex-1">
+                  <FormItem className="min-w-[180px] flex-1">
                     <FormLabel className="text-[10px] text-muted-foreground">
                       Item
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="text"
-                        value={field.value ?? ""}
-                        onChange={field.onChange}
-                        placeholder="Zakum Helmet"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name={`gearItems.${index}.requiredLevel`}
-                render={({ field }) => (
-                  <FormItem className="w-20">
-                    <FormLabel className="text-[10px] text-muted-foreground">
-                      Req. Lv
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
+                      <Select
                         value={
-                          field.value !== undefined
-                            ? field.value.toString()
-                            : ""
+                          field.value !== undefined ? String(field.value) : ""
                         }
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) || 0 : 0
-                          )
-                        }
-                      />
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const selected = gearItems.find(
+                            (item) => String(item.id) === value
+                          );
+                          if (selected) {
+                            // Populate dependent fields based on selected gear item
+                            setValue(
+                              `gearItems.${index}.name`,
+                              selected.name
+                            );
+                            setValue(
+                              `gearItems.${index}.slot`,
+                              selected.slot
+                            );
+                            setValue(
+                              `gearItems.${index}.requiredLevel`,
+                              selected.requiredLevel
+                            );
+                            // Default INT to the item's INT (user can override)
+                            setValue(`gearItems.${index}.int`, selected.int);
+                          }
+                        }}
+                      >
+                        <SelectTrigger size="sm">
+                          <SelectValue placeholder="Select item" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {gearItems.map((item) => (
+                            <SelectItem
+                              key={item.id}
+                              value={String(item.id)}
+                            >
+                              {item.name} (Lv {item.requiredLevel}, INT{" "}
+                              {item.int})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                   </FormItem>
                 )}
@@ -211,15 +170,16 @@ export const GearForm = ({ control }: GearFormProps) => {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() =>
+          onClick={() => {
+            const defaultItem = gearItems[0];
             append({
-              id: `${Date.now()}-${fields.length}`,
-              name: "",
-              slot: GearSlot.Hat,
-              requiredLevel: 1,
-              int: 0,
-            })
-          }
+              id: defaultItem.id,
+              name: defaultItem.name,
+              slot: defaultItem.slot,
+              requiredLevel: defaultItem.requiredLevel,
+              int: defaultItem.int,
+            });
+          }}
         >
           Add gear item
         </Button>
