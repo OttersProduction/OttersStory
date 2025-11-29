@@ -78,7 +78,11 @@ export default function Home() {
             <div className="flex sm:flex-row flex-col gap-4">
               <BreakoutPlan breakoutPlan={plan.player.breakoutPlan} />
               <div className="flex-1">
-                <Graph job={formvalues.job} data={plan.data} />
+                <Graph
+                  job={formvalues.job}
+                  data={plan.data}
+                  targetHP={formvalues.targetHP}
+                />
               </div>
             </div>
           </>

@@ -22,8 +22,9 @@ import { Job } from "@/app/models/job";
 interface GraphProps {
   job: Job;
   data: { level: number; hp: number; mp: number; int: number }[];
+  targetHP?: number;
 }
-export default function Graph({ job, data }: GraphProps) {
+export default function Graph({ job, data, targetHP }: GraphProps) {
   return (
     <Card>
       <CardHeader>
@@ -40,6 +41,17 @@ export default function Graph({ job, data }: GraphProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="level" />
               <YAxis />
+              {typeof targetHP === "number" && (
+                <Line
+                  type="monotone"
+                  dataKey={() => targetHP}
+                  name="Target HP"
+                  stroke="var(--destructive)"
+                  strokeDasharray="4 4"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              )}
               <Tooltip
                 contentStyle={{
                   backgroundColor: "var(--background)",

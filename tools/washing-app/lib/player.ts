@@ -251,12 +251,14 @@ export class Player {
       const equippedItem = this.equipped.find(
         (equipped) => equipped.slot === item.slot
       );
-      const intGain = item.int - (equippedItem?.int ?? 0);
-      this.breakoutPlan[this.level].equips.push({
-        item,
-        oldItem: equippedItem,
-        intGain,
-      });
+      if (equippedItem?.id !== item.id) {
+        const intGain = item.int - (equippedItem?.int ?? 0);
+        this.breakoutPlan[this.level].equips.push({
+          item,
+          oldItem: equippedItem,
+          intGain,
+        });
+      }
       newEquipped.push(item);
     });
 
