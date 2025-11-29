@@ -1,0 +1,114 @@
+"use client";
+
+import { EventGroup, PatternRangeGroup } from "./breakout-plan-helpers";
+
+interface BreakoutEventRowProps {
+  group: EventGroup;
+  index: number;
+}
+
+export const BreakoutEventRow = ({ group, index }: BreakoutEventRowProps) => {
+  return (
+    <li
+      key={`event-${group.level}-${index}`}
+      className="rounded-md border border-border bg-muted/40 px-3 py-2"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Level {group.level}
+        </span>
+      </div>
+      {(group.actions.length > 0 || group.equips.length > 0) && (
+        <ul className="mt-1.5 space-y-0.5">
+          {group.actions.map((text, i) => (
+            <li
+              key={`a-${group.level}-${i}`}
+              className="text-xs text-foreground"
+            >
+              • {text}
+            </li>
+          ))}
+          {group.equips.map((text, i) => (
+            <li
+              key={`e-${group.level}-${i}`}
+              className="text-xs text-foreground"
+            >
+              • Equip {text}.
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+interface BreakoutPatternRangeRowProps {
+  group: PatternRangeGroup;
+  index: number;
+}
+
+export const BreakoutPatternRangeRow = ({
+  group,
+  index,
+}: BreakoutPatternRangeRowProps) => {
+  const {
+    startLevel,
+    endLevel,
+    perLevelHPWashes,
+    perLevelIntAP,
+    perLevelMainStatAP,
+  } = group;
+
+  const title =
+    startLevel === endLevel
+      ? `Level ${startLevel}`
+      : `Levels ${startLevel}–${endLevel}`;
+
+  const levelCount = endLevel - startLevel + 1;
+  const summaryParts: string[] = [];
+
+  if (perLevelHPWashes > 0) {
+    const totalWashes = perLevelHPWashes * levelCount;
+    summaryParts.push(
+      `Wash ${perLevelHPWashes} AP for HP per level (≈${totalWashes} total washes)`
+    );
+  }
+  if (perLevelIntAP > 0) {
+    summaryParts.push(`Allocate ${perLevelIntAP} AP into INT per level`);
+  }
+  if (perLevelMainStatAP > 0) {
+    summaryParts.push(
+      `Allocate ${perLevelMainStatAP} AP into your main stat per level`
+    );
+  }
+
+  return (
+    <li
+      key={`range-${startLevel}-${endLevel}-${index}`}
+      className="rounded-md border border-border bg-muted/20 px-3 py-2"
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {title}
+        </span>
+      </div>
+      {summaryParts.length > 0 && (
+        <ul className="mt-1.5 space-y-0.5">
+          {summaryParts.map((text, i) => (
+            <li
+              key={`s-${startLevel}-${endLevel}-${i}`}
+              className="text-xs text-foreground"
+            >
+              • {text}.
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-1.5 text-[0.7rem] text-muted-foreground">
+        These levels primarily allocate stats with no washes or gear changes.
+      </div>
+    </li>
+  );
+};
+
+
