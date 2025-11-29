@@ -69,10 +69,7 @@ export const GearForm = ({ control }: GearFormProps) => {
         )}
         <div className="space-y-2 divide-y divide-border sm:px-3">
           {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="flex flex-wrap items-center gap-3 pb-6"
-            >
+            <div key={field.id} className="flex flex-wrap items-end gap-3 pb-6">
               <FormField
                 control={control}
                 name={`gearItems.${index}.id`}
