@@ -69,6 +69,19 @@ export const BreakoutPlanSimple = ({
     [breakoutPlan]
   );
 
+  const totalIntAP = useMemo(
+    () => levels.reduce((sum, lvl) => sum + lvl.intAP, 0),
+    [levels]
+  );
+  const totalHPWashes = useMemo(
+    () => levels.reduce((sum, lvl) => sum + lvl.levelHPWashes, 0),
+    [levels]
+  );
+  const totalMainStatAP = useMemo(
+    () => levels.reduce((sum, lvl) => sum + lvl.mainStatAP, 0),
+    [levels]
+  );
+
   const intRanges = useMemo(
     () => buildRanges(levels, (lvl) => lvl.intAP > 0),
     [levels]
@@ -98,8 +111,15 @@ export const BreakoutPlanSimple = ({
         </CardHeader>
         <CardContent className="py-2 text-sm space-y-3">
           <div>
-            <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">
-              INT allocation
+            <div className="flex items-baseline justify-between mb-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                INT allocation
+              </div>
+              {totalIntAP > 0 && (
+                <div className="text-[11px] text-muted-foreground">
+                  Total: {totalIntAP} AP
+                </div>
+              )}
             </div>
             {intRanges.length === 0 ? (
               <div className="text-xs text-muted-foreground">
@@ -117,8 +137,15 @@ export const BreakoutPlanSimple = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">
-              HP washing
+            <div className="flex items-baseline justify-between mb-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                HP washing
+              </div>
+              {totalHPWashes > 0 && (
+                <div className="text-[11px] text-muted-foreground">
+                  Total: {totalHPWashes} washes
+                </div>
+              )}
             </div>
             {washRanges.length === 0 ? (
               <div className="text-xs text-muted-foreground">
@@ -136,8 +163,15 @@ export const BreakoutPlanSimple = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">
-              Main stat allocation
+            <div className="flex items-baseline justify-between mb-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Main stat allocation
+              </div>
+              {totalMainStatAP > 0 && (
+                <div className="text-[11px] text-muted-foreground">
+                  Total: {totalMainStatAP} AP
+                </div>
+              )}
             </div>
             {mainStatRanges.length === 0 ? (
               <div className="text-xs text-muted-foreground">
