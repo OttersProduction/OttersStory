@@ -78,9 +78,6 @@ export const GearForm = ({ control }: GearFormProps) => {
                 name={`gearItems.${index}.id`}
                 render={({ field }) => (
                   <FormItem className="min-w-[180px] flex-1">
-                    <FormLabel className="text-[10px] text-muted-foreground">
-                      Item
-                    </FormLabel>
                     <FormControl>
                       <Select
                         value={
@@ -93,14 +90,8 @@ export const GearForm = ({ control }: GearFormProps) => {
                           );
                           if (selected) {
                             // Populate dependent fields based on selected gear item
-                            setValue(
-                              `gearItems.${index}.name`,
-                              selected.name
-                            );
-                            setValue(
-                              `gearItems.${index}.slot`,
-                              selected.slot
-                            );
+                            setValue(`gearItems.${index}.name`, selected.name);
+                            setValue(`gearItems.${index}.slot`, selected.slot);
                             setValue(
                               `gearItems.${index}.requiredLevel`,
                               selected.requiredLevel
@@ -115,9 +106,10 @@ export const GearForm = ({ control }: GearFormProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           {Object.values(GearSlot).map((slot) => {
-                            const itemsForSlot = gearItems
-                              .filter((item) => item.slot === slot)
-                              
+                            const itemsForSlot = gearItems.filter(
+                              (item) => item.slot === slot
+                            );
+
                             if (!itemsForSlot.length) return null;
 
                             return (
@@ -200,6 +192,4 @@ export const GearForm = ({ control }: GearFormProps) => {
       </div>
     </div>
   );
-}
-
-
+};

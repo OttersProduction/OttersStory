@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Action, BreakoutPlan as BreakoutPlanType } from "@/app/models/player";
 import {
   Card,
@@ -9,25 +9,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface BreakoutPlanProps {
   breakoutPlan: BreakoutPlanType;
 }
 
+type EventGroup = {
+  kind: "event";
+  level: number;
+  actionsSummary: string;
+  actions: string[];
+  equips: string[];
+};
+
+type PatternRangeGroup = {
+  kind: "patternRange";
+  startLevel: number;
+  endLevel: number;
+  perLevelHPWashes: number;
+  perLevelIntAP: number;
+  perLevelMainStatAP: number;
+};
+
+type PlanGroup = EventGroup | PatternRangeGroup;
+
 export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
   const {
-    levels,
+    groups,
     firstWashLevel,
     lastWashLevel,
     totalHPWashes,
   }: {
-    levels: {
-      level: number;
-      actionsSummary: string;
-      actions: string[];
-      equips: string[];
-    }[];
+    groups: PlanGroup[];
     firstWashLevel?: number;
     lastWashLevel?: number;
     totalHPWashes: number;
@@ -43,7 +56,16 @@ export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
     let lastWashLevel: number | undefined;
     let totalHPWashes = 0;
 
-    const levels = entries.map(({ level, details }) => {
+    const groups: PlanGroup[] = [];
+    let currentPatternGroup: PatternRangeGroup | undefined;
+
+    const flushPatternGroup = () => {
+      if (!currentPatternGroup) return;
+      groups.push(currentPatternGroup);
+      currentPatternGroup = undefined;
+    };
+
+    for (const { level, details } of entries) {
       const hpWashActions = details.actions.filter(
         (a) => a.type === Action.HP_WASH
       );
@@ -55,6 +77,12 @@ export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
       );
 
       const levelHPWashes = hpWashActions.reduce((sum, a) => sum + a.ap, 0);
+      const intAP = addIntActions.reduce((sum, a) => sum + a.ap, 0);
+      const mainStatAP = addMainStatActions.reduce((sum, a) => sum + a.ap, 0);
+
+      const hasEquips = details.equips.length > 0;
+      const hasHPWash = levelHPWashes > 0;
+
       if (levelHPWashes > 0) {
         totalHPWashes += levelHPWashes;
         if (firstWashLevel === undefined) firstWashLevel = level;
@@ -70,63 +98,94 @@ export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
         return `${name} (+${e.intGain} INT)`;
       });
 
-      const actionParts: string[] = [];
-      if (levelHPWashes > 0) {
-        actionParts.push(`${levelHPWashes} HP washes`);
-      }
-      const intAP = addIntActions.reduce((sum, a) => sum + a.ap, 0);
-      if (intAP > 0) {
-        actionParts.push(`+${intAP} INT (AP)`);
-      }
-      const mainStatAP = addMainStatActions.reduce((sum, a) => sum + a.ap, 0);
-      if (mainStatAP > 0) {
-        actionParts.push(`+${mainStatAP} main stat (AP)`);
+      const hasAnyAPChange = intAP > 0 || mainStatAP > 0 || levelHPWashes > 0;
+
+      // If this level has any gear changes, always treat as discrete event
+      if (hasEquips) {
+        flushPatternGroup();
+
+        const actionParts: string[] = [];
+        if (levelHPWashes > 0) {
+          actionParts.push(`${levelHPWashes} HP washes`);
+        }
+        if (intAP > 0) {
+          actionParts.push(`+${intAP} INT (AP)`);
+        }
+        if (mainStatAP > 0) {
+          actionParts.push(`+${mainStatAP} main stat (AP)`);
+        }
+
+        const actionsSummary =
+          actionParts.length > 0 ? actionParts.join(", ") : "Gear change only";
+
+        const actions: string[] = [];
+        if (levelHPWashes > 0) {
+          actions.push(`Use ${levelHPWashes} AP resets for HP washing.`);
+        }
+        if (intAP > 0) {
+          actions.push(`Allocate ${intAP} AP into INT.`);
+        }
+        if (mainStatAP > 0) {
+          actions.push(`Allocate ${mainStatAP} AP into your main stat.`);
+        }
+
+        groups.push({
+          kind: "event",
+          level,
+          actionsSummary,
+          actions,
+          equips: equipSummaries,
+        });
+        continue;
       }
 
-      const actionsSummary =
-        actionParts.length > 0 ? actionParts.join(", ") : "No AP changes";
+      // Levels with only washes / stat AP (no gear)
+      if (hasAnyAPChange) {
+        const pattern = {
+          perLevelHPWashes: levelHPWashes,
+          perLevelIntAP: intAP,
+          perLevelMainStatAP: mainStatAP,
+        };
 
-      const actions: string[] = [];
-      if (levelHPWashes > 0) {
-        actions.push(`Use ${levelHPWashes} AP resets for HP washing.`);
+        if (
+          currentPatternGroup &&
+          level === currentPatternGroup.endLevel + 1 &&
+          currentPatternGroup.perLevelHPWashes === pattern.perLevelHPWashes &&
+          currentPatternGroup.perLevelIntAP === pattern.perLevelIntAP &&
+          currentPatternGroup.perLevelMainStatAP === pattern.perLevelMainStatAP
+        ) {
+          currentPatternGroup.endLevel = level;
+        } else {
+          flushPatternGroup();
+          currentPatternGroup = {
+            kind: "patternRange",
+            startLevel: level,
+            endLevel: level,
+            ...pattern,
+          };
+        }
+      } else {
+        // No relevant actions on this level – break any ongoing pattern range
+        flushPatternGroup();
       }
-      if (intAP > 0) {
-        actions.push(`Allocate ${intAP} AP into INT.`);
-      }
-      if (mainStatAP > 0) {
-        actions.push(`Allocate ${mainStatAP} AP into your main stat.`);
-      }
+    }
 
-      return {
-        level,
-        actionsSummary,
-        actions,
-        equips: equipSummaries,
-      };
-    });
+    flushPatternGroup();
 
     return {
-      levels,
+      groups,
       firstWashLevel,
       lastWashLevel,
       totalHPWashes,
     };
   }, [breakoutPlan]);
 
-  const visibleLevels = useMemo(
-    () =>
-      levels.filter((lvl) => {
-        return lvl.actions.length > 0 || lvl.equips.length > 0;
-      }),
-    [levels]
-  );
-
   return (
     <Card className="flex-1 min-w-0">
       <CardHeader className="space-y-2">
         <CardTitle>Washing Playbook</CardTitle>
         <CardDescription>
-          Step-by-step AP and gear changes to follow each level.
+          Condensed washing and stat allocation plan by level range.
         </CardDescription>
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           {totalHPWashes > 0 && (
@@ -146,42 +205,110 @@ export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-3 max-h-[28rem] overflow-y-auto pr-1">
-        {visibleLevels.length === 0 ? (
+        {groups.length === 0 ? (
           <div className="text-sm text-muted-foreground">
             No actions or gear changes recorded yet. Submit the form to generate
             a washing plan.
           </div>
         ) : (
           <ol className="space-y-2 text-sm">
-            {visibleLevels.map((lvl) => (
-              <li
-                key={lvl.level}
-                className="rounded-md border border-border bg-muted/40 px-3 py-2"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Level {lvl.level}
-                  </span>
-                  <span className="text-xs text-foreground">
-                    {lvl.actionsSummary}
-                  </span>
-                </div>
-                {(lvl.actions.length > 0 || lvl.equips.length > 0) && (
-                  <ul className="mt-1.5 space-y-0.5">
-                    {lvl.actions.map((text, idx) => (
-                      <li key={`a-${idx}`} className="text-xs text-foreground">
-                        • {text}
-                      </li>
-                    ))}
-                    {lvl.equips.map((text, idx) => (
-                      <li key={`e-${idx}`} className="text-xs text-foreground">
-                        • Equip {text}.
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+            {groups.map((group, idx) => {
+              if (group.kind === "event") {
+                return (
+                  <li
+                    key={`event-${group.level}-${idx}`}
+                    className="rounded-md border border-border bg-muted/40 px-3 py-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Level {group.level}
+                      </span>
+                    </div>
+                    {(group.actions.length > 0 || group.equips.length > 0) && (
+                      <ul className="mt-1.5 space-y-0.5">
+                        {group.actions.map((text, i) => (
+                          <li
+                            key={`a-${group.level}-${i}`}
+                            className="text-xs text-foreground"
+                          >
+                            • {text}
+                          </li>
+                        ))}
+                        {group.equips.map((text, i) => (
+                          <li
+                            key={`e-${group.level}-${i}`}
+                            className="text-xs text-foreground"
+                          >
+                            • Equip {text}.
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              }
+
+              // Pattern range group (same per-level washes/stats, no gear)
+              const {
+                startLevel,
+                endLevel,
+                perLevelHPWashes,
+                perLevelIntAP,
+                perLevelMainStatAP,
+              } = group;
+              const title =
+                startLevel === endLevel
+                  ? `Level ${startLevel}`
+                  : `Levels ${startLevel}–${endLevel}`;
+
+              const levelCount = endLevel - startLevel + 1;
+              const summaryParts: string[] = [];
+              if (perLevelHPWashes > 0) {
+                const totalWashes = perLevelHPWashes * levelCount;
+                summaryParts.push(
+                  `Wash ${perLevelHPWashes} AP for HP per level (≈${totalWashes} total washes)`
+                );
+              }
+              if (perLevelIntAP > 0) {
+                summaryParts.push(
+                  `Allocate ${perLevelIntAP} AP into INT per level`
+                );
+              }
+              if (perLevelMainStatAP > 0) {
+                summaryParts.push(
+                  `Allocate ${perLevelMainStatAP} AP into your main stat per level`
+                );
+              }
+
+              return (
+                <li
+                  key={`range-${startLevel}-${endLevel}-${idx}`}
+                  className="rounded-md border border-border bg-muted/20 px-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {title}
+                    </span>
+                  </div>
+                  {summaryParts.length > 0 && (
+                    <ul className="mt-1.5 space-y-0.5">
+                      {summaryParts.map((text, i) => (
+                        <li
+                          key={`s-${startLevel}-${endLevel}-${i}`}
+                          className="text-xs text-foreground"
+                        >
+                          • {text}.
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-1.5 text-[0.7rem] text-muted-foreground">
+                    These levels primarily allocate stats with no washes or gear
+                    changes.
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         )}
       </CardContent>
