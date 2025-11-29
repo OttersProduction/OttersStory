@@ -1,8 +1,7 @@
 import { getMainStatKey, Job, MIN_MAIN_STATS } from "@/app/models/job";
-import { Player } from "@/app/models/player";
+import { Player } from "@/lib/player";
 import { clamp } from "@/app/utils/math";
-import { HPWashPlan } from "@/app/models/hp-wash";
-import { HPQuest } from "@/app/models/hp-quest";
+import { WashPlan } from "@/app/models/wash-plan";
 
 type WashingMode = "hp" | "none" | "mp";
 
@@ -97,11 +96,17 @@ const findOptimalInt = (
     const mid = Math.floor((low + high) / 2);
     // Create a fresh player for each simulation to avoid mutation
     // Use original HP/MP values to preserve washed gains
-    const freshPlayer = new Player(player.job, player.level, {
-      ...player.stats,
-      naturalHP: player.hp,
-      naturalMP: player.mp,
-    }, player.hpQuestsList, player.inventory);
+    const freshPlayer = new Player(
+      player.job,
+      player.level,
+      {
+        ...player.stats,
+        naturalHP: player.hp,
+        naturalMP: player.mp,
+      },
+      player.hpQuestsList,
+      player.inventory
+    );
     const { player: simulatedPlayer } = simulateWashing(
       freshPlayer,
       targetLevel,
@@ -128,7 +133,7 @@ export const createHPWashPlan = (
   targetHP: number,
   targetInt?: number,
   washingMode: WashingMode = "hp"
-): HPWashPlan => {
+): WashPlan => {
   // If targetInt is not specified and washing is enabled, calculate the optimal INT needed
   const effectiveInt =
     targetInt !== undefined

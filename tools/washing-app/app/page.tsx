@@ -1,21 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 import Graph from "@/components/logical/graph";
 
 import { createHPWashPlan } from "./utils/hp-wash";
-import { PlanBreakdown } from "@/components/logical/plan-breakdown";
+import { WashingOverview } from "@/components/logical/washing-overview";
 import { FormValues, InitalForm } from "@/components/logical/form";
-import { Player } from "@/app/models/player";
+import { Player } from "@/lib/player";
 import { GearItem, GearSlot } from "@/app/models/gear";
+import { BreakoutPlan } from "@/components/logical/breakout-plan";
 
 export default function Home() {
   const [formvalues, setFormvalues] = useState<FormValues | undefined>(
@@ -79,9 +73,14 @@ export default function Home() {
 
         {plan && formvalues && (
           <>
-            <PlanBreakdown {...plan} />
+            <WashingOverview {...plan} />
 
-            <Graph job={formvalues.job} data={plan.data} />
+            <div className="flex sm:flex-row flex-col gap-4">
+              <BreakoutPlan />
+              <div className="flex-1">
+                <Graph job={formvalues.job} data={plan.data} />
+              </div>
+            </div>
           </>
         )}
       </div>

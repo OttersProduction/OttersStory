@@ -1,4 +1,4 @@
-export interface HPWashPlan {
+export interface WashPlan {
   data: {
     [x: string]: number;
     level: number;
