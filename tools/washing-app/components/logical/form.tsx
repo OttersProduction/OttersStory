@@ -49,10 +49,8 @@ export const InitalForm = ({ onSubmit }: InitalFormProps) => {
             <SettingsForm control={form.control} />
             <BonusesForm control={form.control} />
           </div>
+          <Button type="submit">Submit</Button>
         </div>
-        <Button className="sm:w-auto w-full" type="submit">
-          Submit
-        </Button>
       </form>
     </Form>
   );

@@ -82,7 +82,7 @@ interface CharacterFormProps {
 
 export const CharacterForm = ({ control }: CharacterFormProps) => {
   return (
-    <Card>
+    <Card className="row-span-2">
       <CardHeader>
         <CardTitle>Character</CardTitle>
         <CardDescription>
