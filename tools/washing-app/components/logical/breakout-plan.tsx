@@ -1,77 +1,58 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import { BreakoutPlan as BreakoutPlanType } from "@/app/models/player";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { buildPlanGroups, PlanBuildResult } from "./breakout-plan-helpers";
-import {
-  BreakoutEventRow,
-  BreakoutPatternRangeRow,
-} from "./breakout-plan-rows";
+import { Button } from "@/components/ui/button";
+import { BreakoutPlanSimple } from "./breakout-plan-simple";
+import { BreakoutPlanComplex } from "./breakout-plan-complex";
 
 interface BreakoutPlanProps {
   breakoutPlan: BreakoutPlanType;
 }
 
+type BreakoutViewMode = "simple" | "complex";
+
 export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
-  const {
-    groups,
-    firstWashLevel,
-    lastWashLevel,
-    totalHPWashes,
-  }: PlanBuildResult = useMemo(
-    () => buildPlanGroups(breakoutPlan),
-    [breakoutPlan]
-  );
+  const [mode, setMode] = useState<BreakoutViewMode>("simple");
 
   return (
-    <Card className="flex-1 min-w-0">
-      <CardHeader className="space-y-2">
-        <CardTitle>Washing Playbook</CardTitle>
-        <CardDescription>
-          Condensed washing and stat allocation plan by level range.
-        </CardDescription>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          {totalHPWashes > 0 && (
-            <div>
-              <span className="font-medium">
-                {totalHPWashes.toLocaleString()}
-              </span>{" "}
-              total HP washes
-              {firstWashLevel !== undefined && lastWashLevel !== undefined && (
-                <span>
-                  {" "}
-                  (levels {firstWashLevel}–{lastWashLevel})
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 max-h-[28rem] overflow-y-auto pr-1">
-        {groups.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
-            No actions or gear changes recorded yet. Submit the form to generate
-            a washing plan.
+    <div className="flex-1 min-w-0 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="space-y-0.5">
+          <div className="text-sm font-semibold text-foreground">
+            Washing Plan View
           </div>
-        ) : (
-          <ol className="space-y-2 text-sm">
-            {groups.map((group, idx) =>
-              group.kind === "event" ? (
-                <BreakoutEventRow group={group} index={idx} key={idx} />
-              ) : (
-                <BreakoutPatternRangeRow group={group} index={idx} key={idx} />
-              )
-            )}
-          </ol>
-        )}
-      </CardContent>
-    </Card>
+          <div className="text-xs text-muted-foreground">
+            {mode === "simple"
+              ? "High-level INT, HP washing, and main stat ranges."
+              : "Detailed per-level actions and gear changes."}
+          </div>
+        </div>
+        <div className="flex gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant={mode === "simple" ? "default" : "outline"}
+            onClick={() => setMode("simple")}
+          >
+            Simple
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={mode === "complex" ? "default" : "outline"}
+            onClick={() => setMode("complex")}
+          >
+            Detailed
+          </Button>
+        </div>
+      </div>
+
+      {mode === "simple" ? (
+        <BreakoutPlanSimple breakoutPlan={breakoutPlan} />
+      ) : (
+        <BreakoutPlanComplex breakoutPlan={breakoutPlan} />
+      )}
+    </div>
   );
 };

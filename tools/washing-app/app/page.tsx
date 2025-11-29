@@ -76,8 +76,10 @@ export default function Home() {
             <WashingOverview {...plan} />
 
             <div className="flex sm:flex-row flex-col gap-4">
-              <BreakoutPlan breakoutPlan={plan.player.breakoutPlan} />
-              <div className="flex-1">
+              <div className="flex-1 flex flex-col gap-4">
+                <BreakoutPlan breakoutPlan={plan.player.breakoutPlan} />
+              </div>
+              <div className="flex-1 min-w-0">
                 <Graph
                   job={formvalues.job}
                   data={plan.data}

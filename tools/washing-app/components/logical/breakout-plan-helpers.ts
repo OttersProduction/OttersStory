@@ -19,7 +19,7 @@ export type PatternRangeGroup = {
 
 export type PlanGroup = EventGroup | PatternRangeGroup;
 
-type AggregatedLevel = {
+export type AggregatedLevel = {
   level: number;
   levelHPWashes: number;
   intAP: number;
@@ -78,6 +78,14 @@ const aggregateLevel = (
   };
 };
 
+export const buildAggregatedLevels = (
+  breakoutPlan: BreakoutPlanType
+): AggregatedLevel[] => {
+  return Object.entries(breakoutPlan)
+    .map(([level, details]) => aggregateLevel(Number(level), details))
+    .sort((a, b) => a.level - b.level);
+};
+
 const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   const { level, levelHPWashes, intAP, mainStatAP, equipSummaries } = levelInfo;
 
@@ -118,9 +126,7 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
 export const buildPlanGroups = (
   breakoutPlan: BreakoutPlanType
 ): PlanBuildResult => {
-  const levels = Object.entries(breakoutPlan)
-    .map(([level, details]) => aggregateLevel(Number(level), details))
-    .sort((a, b) => a.level - b.level);
+  const levels = buildAggregatedLevels(breakoutPlan);
 
   let firstWashLevel: number | undefined;
   let lastWashLevel: number | undefined;
