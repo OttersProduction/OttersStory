@@ -1,7 +1,16 @@
-export const BreakoutPlan = () => {
+import { BreakoutPlan as BreakoutPlanType } from "@/app/models/player";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface BreakoutPlanProps {
+  breakoutPlan: BreakoutPlanType;
+}
+
+export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
   return (
-    <div>
-      <h2>Breakout Plan</h2>
-    </div>
+    <Card>
+      <CardContent>
+        <pre>{JSON.stringify(breakoutPlan, null, 2)}</pre>
+      </CardContent>
+    </Card>
   );
 };

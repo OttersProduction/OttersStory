@@ -36,8 +36,6 @@ const simulateWashing = (
       totalAPResets += player.washHP();
     }
 
-    // Calculate available AP to allocate (max 5 per level)
-
     // First priority: Reach minimum main stat requirement
     if (player.stats[mainStatKey] < minMainStat) {
       const mainStatNeeded = clamp(
@@ -164,11 +162,7 @@ export const createHPWashPlan = (
   return {
     data,
     hpDifference,
-    finalHP: simulatedPlayer.hp,
-    finalMP: simulatedPlayer.mp,
-    finalInt: simulatedPlayer.totalInt,
-    baseInt: simulatedPlayer.stats.int,
-    gearInt: simulatedPlayer.bonusIntFromGear,
     totalAPResets,
+    player: simulatedPlayer,
   };
 };

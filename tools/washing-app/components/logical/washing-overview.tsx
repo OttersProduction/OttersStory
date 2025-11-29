@@ -7,9 +7,8 @@ import { useMemo } from "react";
 interface WashingOverviewProps extends WashPlan {}
 
 export const WashingOverview = ({
+  player,
   totalAPResets,
-  finalHP,
-  finalMP,
 }: WashingOverviewProps) => {
   const cost = useMemo(() => {
     return totalAPResets * DEFAULT_PREFERENCES.aprCostMeso;
@@ -39,7 +38,7 @@ export const WashingOverview = ({
         <CardContent className="flex flex-col items-center justify-center">
           <div className="text-sm text-muted-foreground">Final HP</div>
           <div className="tracking-tight text-3xl font-semibold tabular-nums">
-            {formatNumber(finalHP)}
+            {formatNumber(player.hp)}
           </div>
         </CardContent>
       </Card>
@@ -48,7 +47,7 @@ export const WashingOverview = ({
         <CardContent className="flex flex-col items-center justify-center">
           <div className="text-sm text-muted-foreground">Final MP</div>
           <div className="tracking-tight text-3xl font-semibold tabular-nums">
-            {formatNumber(finalMP)}
+            {formatNumber(player.mp)}
           </div>
         </CardContent>
       </Card>

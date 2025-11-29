@@ -1,3 +1,6 @@
+import { Player } from "@/lib/player";
+import { GearItem } from "./gear";
+
 export interface WashPlan {
   data: {
     [x: string]: number;
@@ -8,9 +11,5 @@ export interface WashPlan {
   }[];
   hpDifference: number;
   totalAPResets: number;
-  finalHP: number;
-  finalMP: number;
-  finalInt: number;
-  baseInt: number;
-  gearInt: number;
+  player: Player;
 }

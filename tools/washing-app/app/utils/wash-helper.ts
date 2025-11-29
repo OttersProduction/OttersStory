@@ -1,6 +1,5 @@
 import { Job } from "../models/job";
-import { getHP, getMinimumMP, getMP } from "./hp-mp-helper";
-import { clamp } from "./math";
+import { getMinimumMP } from "./hp-mp-helper";
 
 export const MP_LOSS_PER_WASH = {
   [Job.BEGINNER]: 8,
