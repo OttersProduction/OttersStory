@@ -58,7 +58,7 @@ export default function Home() {
   }, [formvalues]);
 
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-6 sm:py-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:gap-8">
         <InitalForm onSubmit={handleSubmit} />
 

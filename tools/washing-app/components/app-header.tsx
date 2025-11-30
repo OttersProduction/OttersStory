@@ -9,7 +9,7 @@ interface AppHeaderProps {
 export function AppHeader({ defaultTheme }: AppHeaderProps) {
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur">
-      <div className="flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+      <div className="flex items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center gap-3 px-2">
           <Link href="/" className="flex items-center gap-3">
             <div className="relative h-9 w-9 sm:h-10 sm:w-10">
