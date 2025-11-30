@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { AppHeader } from "@/components/app-header";
+import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,25 +78,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const theme = (await cookies()).get("theme")?.value || "light";
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={theme} style={{ colorScheme: theme }}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableColorScheme
-          enableSystem
+          forcedTheme={theme}
           disableTransitionOnChange
         >
+          <AppHeader defaultTheme={theme} />
           {children}
-          <ThemeToggle />
         </ThemeProvider>
       </body>
     </html>

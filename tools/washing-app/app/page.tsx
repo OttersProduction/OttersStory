@@ -60,15 +60,6 @@ export default function Home() {
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:gap-8">
-        <div className="text-center px-2">
-          <h1 className="mb-2 text-3xl font-bold text-foreground sm:text-4xl">
-            MapleStory Washing Calculator
-          </h1>
-          <p className="text-sm text-muted-foreground sm:text-base">
-            Visualize HP and MP growth by class and level
-          </p>
-        </div>
-
         <InitalForm onSubmit={handleSubmit} />
 
         {plan && formvalues && (
