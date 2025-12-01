@@ -1,21 +1,11 @@
 "use client";
 import { Moon, Sun } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { setCookie } from "cookies-next";
 import { useEffect, useState } from "react";
+import { Switch } from "@/components/ui/switch";
 
 const ThemeToggle = ({ defaultTheme }: { defaultTheme: string }) => {
   const [theme, setTheme] = useState(defaultTheme);
-
-  const handleChange = (value: string) => {
-    setTheme(value);
-  };
 
   useEffect(() => {
     const theme = document.documentElement.classList.contains("light")
@@ -31,39 +21,25 @@ const ThemeToggle = ({ defaultTheme }: { defaultTheme: string }) => {
     document.documentElement.classList.add(theme);
   }, [theme]);
 
+  const isDark = theme === "dark";
+
+  const handleCheckedChange = (checked: boolean) => {
+    setTheme(checked ? "dark" : "light");
+  };
+
+  const thumbIcon = isDark ? (
+    <Moon className="h-3.5 w-3.5" color="var(--color-primary)" />
+  ) : (
+    <Sun className="h-3.5 w-3.5" color="var(--color-primary)" />
+  );
+
   return (
-    <Select value={theme} onValueChange={handleChange}>
-      <SelectTrigger size="sm" aria-label="Select theme">
-        <SelectValue>
-          {theme === "light" && (
-            <span className="flex items-center gap-1.5">
-              <Sun className="h-3.5 w-3.5" />
-              <span>Light</span>
-            </span>
-          )}
-          {theme === "dark" && (
-            <span className="flex items-center gap-1.5">
-              <Moon className="h-3.5 w-3.5" />
-              <span>Dark</span>
-            </span>
-          )}
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent align="end">
-        <SelectItem value="light">
-          <span className="flex items-center gap-1.5">
-            <Sun className="h-3.5 w-3.5" />
-            <span>Light</span>
-          </span>
-        </SelectItem>
-        <SelectItem value="dark">
-          <span className="flex items-center gap-1.5">
-            <Moon className="h-3.5 w-3.5" />
-            <span>Dark</span>
-          </span>
-        </SelectItem>
-      </SelectContent>
-    </Select>
+    <Switch
+      checked={isDark}
+      onCheckedChange={handleCheckedChange}
+      aria-label="Toggle dark mode"
+      thumbChildren={thumbIcon}
+    />
   );
 };
 

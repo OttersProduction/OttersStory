@@ -2,11 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
+import { ThemePresetSelect } from "@/components/theme/theme-preset-select";
 
 interface AppHeaderProps {
   defaultTheme: string;
+  defaultThemePreset: string;
 }
-export function AppHeader({ defaultTheme }: AppHeaderProps) {
+export function AppHeader({
+  defaultTheme,
+  defaultThemePreset,
+}: AppHeaderProps) {
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur">
       <div className="flex items-center justify-between px-4 py-4 sm:px-6">
@@ -29,7 +34,8 @@ export function AppHeader({ defaultTheme }: AppHeaderProps) {
             </div>
           </Link>
         </div>
-        <div className="ml-auto px-2">
+        <div className="ml-auto flex items-center gap-3 px-2">
+          <ThemePresetSelect defaultThemePreset={defaultThemePreset} />
           <ThemeToggle defaultTheme={defaultTheme} />
         </div>
       </div>

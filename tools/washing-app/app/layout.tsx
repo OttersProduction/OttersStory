@@ -84,8 +84,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const theme = (await cookies()).get("theme")?.value || "light";
+  const themePreset =
+    (await cookies()).get("themePreset")?.value || "northern-lights";
   return (
-    <html lang="en" className={theme} style={{ colorScheme: theme }}>
+    <html
+      lang="en"
+      className={theme}
+      style={{ colorScheme: theme }}
+      data-theme-preset={themePreset}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -94,7 +101,7 @@ export default async function RootLayout({
           forcedTheme={theme}
           disableTransitionOnChange
         >
-          <AppHeader defaultTheme={theme} />
+          <AppHeader defaultTheme={theme} defaultThemePreset={themePreset} />
           {children}
         </ThemeProvider>
       </body>
