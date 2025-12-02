@@ -35,14 +35,22 @@ const simulateWashing = (
     if (player.level >= targetLevel) {
       player.addStats({ ap_hp: investedHP });
     }
-    for (let i = 0; i < player.stats.ap; i++) {
+
+    // First priority: Reach minimum main stat requirement
+    if (player.stats[mainStatKey] < minMainStat && player.stats.ap > 0) {
+      const apToMinMainStat = Math.min(
+        player.stats.ap,
+        minMainStat - player.stats[mainStatKey]
+      );
+      if (apToMinMainStat > 0) {
+        player.addStats({ [mainStatKey]: apToMinMainStat });
+      }
+    }
+
+    // Use ALL remaining AP at this level
+    while (player.stats.ap > 0) {
       if (washingMode === "hp") {
         totalAPResets += player.washHP();
-      }
-
-      // First priority: Reach minimum main stat requirement
-      if (player.stats[mainStatKey] < minMainStat) {
-        player.addStats({ [mainStatKey]: 1 });
       }
 
       // Second priority: Add INT up to target if we still have AP remaining
@@ -71,7 +79,7 @@ const simulateWashing = (
     const excessInt = Math.max(player.stats.int - 4, 0);
     for (let i = 0; i < excessMP; i++) {
       totalAPResets += player.removeStats({ ap_mp: 1 });
-      player.addStats({ ap_hp: 1 });
+      player.addStats({ ap_hp: 1 }, false);
     }
 
     totalAPResets += player.removeStats({ int: excessInt });

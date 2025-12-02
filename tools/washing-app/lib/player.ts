@@ -161,7 +161,7 @@ export class Player {
     return this.mpGain;
   }
 
-  public addStats(args: Partial<Stats>) {
+  public addStats(args: Partial<Stats>, freshAp: boolean = true) {
     const totalAP =
       (args.str ?? 0) +
       (args.dex ?? 0) +
@@ -182,7 +182,7 @@ export class Player {
     this.stats.ap_hp += args.ap_hp ?? 0;
     this.stats.ap_mp += args.ap_mp ?? 0;
 
-    this.hpGain += getHPGainByAP(this.job, true, args.ap_hp ?? 0);
+    this.hpGain += getHPGainByAP(this.job, freshAp, args.ap_hp ?? 0);
 
     this.mpGain += getMPGainByAP(this.job, this.stats.int, args.ap_mp ?? 0);
 

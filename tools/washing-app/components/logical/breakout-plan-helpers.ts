@@ -14,6 +14,7 @@ export type PatternRangeGroup = {
   endLevel: number;
   perLevelHPWashes: number;
   perLevelIntAP: number;
+  perLevelRemovedIntAP: number;
   perLevelMainStatAP: number;
 };
 
@@ -23,6 +24,8 @@ export type AggregatedLevel = {
   level: number;
   levelHPWashes: number;
   intAP: number;
+  /** AP removed from INT (AP resets) */
+  removedIntAP: number;
   mainStatAP: number;
   hasEquips: boolean;
   hasHPWash: boolean;
@@ -41,21 +44,28 @@ const aggregateLevel = (
   level: number,
   details: BreakoutPlanType[number]
 ): AggregatedLevel => {
-  const hpWashActions = details.actions.filter(
-    (a) => a.type === Action.HP_WASH
+  // A "HP wash" is represented by AP resets moving MP into HP.
+  // Each reset results in a REMOVE_MP and ADD_HP pair; we count by REMOVE_MP.
+  const hpWashActions = details.actions.filter((a) => a.type === Action.ADD_HP);
+  const addIntActions = details.actions.filter(
+    (a) => a.type === Action.ADD_INT
   );
-  const addIntActions = details.actions.filter((a) => a.type === Action.ADD_INT);
+  const removeIntActions = details.actions.filter(
+    (a) => a.type === Action.REMOVE_INT
+  );
   const addMainStatActions = details.actions.filter(
     (a) => a.type === Action.ADD_MAIN_STAT
   );
 
   const levelHPWashes = hpWashActions.reduce((sum, a) => sum + a.ap, 0);
   const intAP = addIntActions.reduce((sum, a) => sum + a.ap, 0);
+  const removedIntAP = removeIntActions.reduce((sum, a) => sum + a.ap, 0);
   const mainStatAP = addMainStatActions.reduce((sum, a) => sum + a.ap, 0);
 
   const hasEquips = details.equips.length > 0;
   const hasHPWash = levelHPWashes > 0;
-  const hasAnyAPChange = intAP > 0 || mainStatAP > 0 || levelHPWashes > 0;
+  const hasAnyAPChange =
+    intAP > 0 || removedIntAP > 0 || mainStatAP > 0 || levelHPWashes > 0;
 
   const equipSummaries = details.equips.map((e) => {
     const name = e.item.name || e.item.id || "New gear";
@@ -70,6 +80,7 @@ const aggregateLevel = (
     level,
     levelHPWashes,
     intAP,
+    removedIntAP,
     mainStatAP,
     hasEquips,
     hasHPWash,
@@ -87,7 +98,14 @@ export const buildAggregatedLevels = (
 };
 
 const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
-  const { level, levelHPWashes, intAP, mainStatAP, equipSummaries } = levelInfo;
+  const {
+    level,
+    levelHPWashes,
+    intAP,
+    removedIntAP,
+    mainStatAP,
+    equipSummaries,
+  } = levelInfo;
 
   const actionParts: string[] = [];
   if (levelHPWashes > 0) {
@@ -95,6 +113,9 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   }
   if (intAP > 0) {
     actionParts.push(`+${intAP} INT (AP)`);
+  }
+  if (removedIntAP > 0) {
+    actionParts.push(`reset ${removedIntAP} INT (AP)`);
   }
   if (mainStatAP > 0) {
     actionParts.push(`+${mainStatAP} main stat (AP)`);
@@ -109,6 +130,9 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   }
   if (intAP > 0) {
     actions.push(`Allocate ${intAP} AP into INT.`);
+  }
+  if (removedIntAP > 0) {
+    actions.push(`Use ${removedIntAP} AP resets to remove INT.`);
   }
   if (mainStatAP > 0) {
     actions.push(`Allocate ${mainStatAP} AP into your main stat.`);
@@ -146,6 +170,7 @@ export const buildPlanGroups = (
       level,
       levelHPWashes,
       intAP,
+      removedIntAP,
       mainStatAP,
       hasEquips,
       hasHPWash,
@@ -170,6 +195,7 @@ export const buildPlanGroups = (
       const pattern = {
         perLevelHPWashes: levelHPWashes,
         perLevelIntAP: intAP,
+        perLevelRemovedIntAP: removedIntAP,
         perLevelMainStatAP: mainStatAP,
       };
 
@@ -178,6 +204,8 @@ export const buildPlanGroups = (
         level === currentPatternGroup.endLevel + 1 &&
         currentPatternGroup.perLevelHPWashes === pattern.perLevelHPWashes &&
         currentPatternGroup.perLevelIntAP === pattern.perLevelIntAP &&
+        currentPatternGroup.perLevelRemovedIntAP ===
+          pattern.perLevelRemovedIntAP &&
         currentPatternGroup.perLevelMainStatAP === pattern.perLevelMainStatAP
       ) {
         currentPatternGroup.endLevel = level;
@@ -205,5 +233,3 @@ export const buildPlanGroups = (
     totalHPWashes,
   };
 };
-
-

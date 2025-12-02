@@ -73,6 +73,10 @@ export const BreakoutPlanSimple = ({
     () => levels.reduce((sum, lvl) => sum + lvl.intAP, 0),
     [levels]
   );
+  const totalRemovedIntAP = useMemo(
+    () => levels.reduce((sum, lvl) => sum + lvl.removedIntAP, 0),
+    [levels]
+  );
   const totalHPWashes = useMemo(
     () => levels.reduce((sum, lvl) => sum + lvl.levelHPWashes, 0),
     [levels]
@@ -84,6 +88,10 @@ export const BreakoutPlanSimple = ({
 
   const intRanges = useMemo(
     () => buildRanges(levels, (lvl) => lvl.intAP > 0),
+    [levels]
+  );
+  const intRemovalRanges = useMemo(
+    () => buildRanges(levels, (lvl) => lvl.removedIntAP > 0),
     [levels]
   );
   const washRanges = useMemo(
@@ -106,7 +114,7 @@ export const BreakoutPlanSimple = ({
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Stat Allocation Summary</CardTitle>
           <CardDescription>
-            Level ranges where you add INT, HP wash, and main stat.
+            Level ranges where you add/remove INT, HP wash, and main stat.
           </CardDescription>
         </CardHeader>
         <CardContent className="py-2 text-sm space-y-3">
@@ -181,6 +189,35 @@ export const BreakoutPlanSimple = ({
               <ul className="space-y-0.5">
                 {mainStatRanges.map((range, idx) => (
                   <li key={`main-${idx}`} className="text-xs text-foreground">
+                    • {formatRangeLabel(range)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-baseline justify-between mb-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                INT resets
+              </div>
+              {totalRemovedIntAP > 0 && (
+                <div className="text-[11px] text-muted-foreground">
+                  Total: {totalRemovedIntAP} AP
+                </div>
+              )}
+            </div>
+            {intRemovalRanges.length === 0 ? (
+              <div className="text-xs text-muted-foreground">
+                No INT removed (no AP resets on INT).
+              </div>
+            ) : (
+              <ul className="space-y-0.5">
+                {intRemovalRanges.map((range, idx) => (
+                  <li
+                    key={`int-reset-${idx}`}
+                    className="text-xs text-foreground"
+                  >
                     • {formatRangeLabel(range)}
                   </li>
                 ))}

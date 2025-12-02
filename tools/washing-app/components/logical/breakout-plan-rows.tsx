@@ -56,6 +56,7 @@ export const BreakoutPatternRangeRow = ({
     endLevel,
     perLevelHPWashes,
     perLevelIntAP,
+    perLevelRemovedIntAP,
     perLevelMainStatAP,
   } = group;
 
@@ -69,17 +70,40 @@ export const BreakoutPatternRangeRow = ({
 
   if (perLevelHPWashes > 0) {
     const totalWashes = perLevelHPWashes * levelCount;
-    summaryParts.push(
-      `Wash ${perLevelHPWashes} AP for HP per level (≈${totalWashes} total washes)`
-    );
+    if (levelCount === 1) {
+      summaryParts.push(`Wash ${perLevelHPWashes} AP for HP`);
+    } else {
+      summaryParts.push(
+        `Wash ${perLevelHPWashes} AP for HP per level (≈${totalWashes} total washes)`
+      );
+    }
   }
   if (perLevelIntAP > 0) {
-    summaryParts.push(`Allocate ${perLevelIntAP} AP into INT per level`);
+    if (levelCount === 1) {
+      summaryParts.push(`Allocate ${perLevelIntAP} AP into INT`);
+    } else {
+      summaryParts.push(`Allocate ${perLevelIntAP} AP into INT per level`);
+    }
+  }
+  if (perLevelRemovedIntAP > 0) {
+    if (levelCount === 1) {
+      summaryParts.push(`Use ${perLevelRemovedIntAP} AP resets to remove INT`);
+    } else {
+      summaryParts.push(
+        `Use ${perLevelRemovedIntAP} AP resets to remove INT per level`
+      );
+    }
   }
   if (perLevelMainStatAP > 0) {
-    summaryParts.push(
-      `Allocate ${perLevelMainStatAP} AP into your main stat per level`
-    );
+    if (levelCount === 1) {
+      summaryParts.push(
+        `Allocate ${perLevelMainStatAP} AP into your main stat`
+      );
+    } else {
+      summaryParts.push(
+        `Allocate ${perLevelMainStatAP} AP into your main stat per level`
+      );
+    }
   }
 
   return (
@@ -104,11 +128,6 @@ export const BreakoutPatternRangeRow = ({
           ))}
         </ul>
       )}
-      <div className="mt-1.5 text-[0.7rem] text-muted-foreground">
-        These levels primarily allocate stats with no washes or gear changes.
-      </div>
     </li>
   );
 };
-
-
