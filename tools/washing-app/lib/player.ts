@@ -113,7 +113,7 @@ export class Player {
     const possibleWashes = getAPResetsHPWash(this.job, this.level, this.mp);
     const apResets = Math.min(possibleWashes, this.stats.ap);
     this.mpGain -= getMPLossByAP(this.job, apResets);
-    this.hpGain += getHPGainByAP(this.job, true) * apResets;
+    this.hpGain += getHPGainByAP(this.job, true, apResets);
     if (apResets > 0) {
       this.breakoutPlan[this.level].actions.push({
         type: Action.HP_WASH,

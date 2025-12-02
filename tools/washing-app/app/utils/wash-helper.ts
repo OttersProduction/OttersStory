@@ -19,7 +19,7 @@ export const getMPLossByAP = (job: Job, ap: number) => {
   return MP_LOSS_PER_WASH[job] * ap;
 };
 
-export const getMPGainByAP = (job: Job, int: number = 4) => {
+export const getMPGainByAP = (job: Job, int: number = 4, ap: number) => {
   let bonusMP = 7;
   switch (job) {
     case Job.DARK_KNIGHT:
@@ -39,10 +39,14 @@ export const getMPGainByAP = (job: Job, int: number = 4) => {
       bonusMP = 19;
       break;
   }
-  return bonusMP + Math.floor(int / 10);
+  return (bonusMP + Math.floor(int / 10)) * ap;
 };
 
-export const getHPGainByAP = (job: Job, freshAP: boolean = true) => {
+export const getHPGainByAP = (
+  job: Job,
+  freshAP: boolean = true,
+  ap: number
+) => {
   let bonusHP = 11;
 
   switch (job) {
@@ -67,7 +71,7 @@ export const getHPGainByAP = (job: Job, freshAP: boolean = true) => {
       bonusHP = freshAP ? 8 : 15;
       break;
   }
-  return bonusHP;
+  return bonusHP * ap;
 };
 
 export const getAPResetsHPWash = (job: Job, level: number, mp: number) => {
