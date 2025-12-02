@@ -36,6 +36,8 @@ export default function Home() {
       formvalues.job,
       formvalues.level,
       {
+        ap_mp: 0,
+        ap_hp: 0,
         str: formvalues.str,
         dex: formvalues.dex,
         int: formvalues.int,
