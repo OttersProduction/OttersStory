@@ -1,7 +1,7 @@
 import { getMainStatKey, Job, MIN_MAIN_STATS } from "@/app/models/job";
 import { Player } from "@/lib/player";
-import { clamp } from "@/app/utils/math";
 import { WashPlan } from "@/app/models/wash-plan";
+import { getExcessMPAP } from "./wash-helper";
 
 type WashingMode = "hp" | "none" | "mp";
 
@@ -16,6 +16,7 @@ const simulateWashing = (
 ) => {
   const data = [];
 
+  const investedHP = 1;
   const mainStatKey = getMainStatKey(player.job);
   const minMainStat = MIN_MAIN_STATS[player.job] || 0;
   let totalAPResets = 0;
@@ -31,27 +32,25 @@ const simulateWashing = (
     });
     player.levelUp();
 
-    // Only perform washing if mode is "hp"
-    if (washingMode === "hp") {
-      totalAPResets += player.washHP();
+    if (player.level >= targetLevel) {
+      player.addStats({ ap_hp: investedHP });
     }
+    for (let i = 0; i < player.stats.ap; i++) {
+      if (washingMode === "hp") {
+        totalAPResets += player.washHP();
+      }
 
-    // First priority: Reach minimum main stat requirement
-    if (player.stats[mainStatKey] < minMainStat) {
-      const mainStatNeeded = clamp(
-        minMainStat - player.stats[mainStatKey],
-        0,
-        player.stats.ap
-      );
-      player.addStats({ [mainStatKey]: mainStatNeeded });
-    }
+      // First priority: Reach minimum main stat requirement
+      if (player.stats[mainStatKey] < minMainStat) {
+        player.addStats({ [mainStatKey]: 1 });
+      }
 
-    // Second priority: Add INT up to target if we still have AP remaining
-    if (targetInt > player.stats.int) {
-      const intToAdd = clamp(targetInt - player.stats.int, 0, player.stats.ap);
-      player.addStats({ int: intToAdd });
-    } else {
-      player.addStats({ [mainStatKey]: player.stats.ap });
+      // Second priority: Add INT up to target if we still have AP remaining
+      if (targetInt > player.stats.int) {
+        player.addStats({ int: 1 });
+      } else {
+        player.addStats({ [mainStatKey]: 1 });
+      }
     }
   }
 
@@ -64,8 +63,23 @@ const simulateWashing = (
     [mainStatKey]: player.stats[mainStatKey],
   });
   // Only count INT-based AP resets if washing is enabled
-  if (washingMode === "hp" && player.job !== Job.MAGICIAN) {
-    totalAPResets += player.stats.int - 4;
+  if (player.job !== Job.MAGICIAN) {
+    const excessMP = Math.max(
+      getExcessMPAP(player.job, player.level, player.mp) - investedHP,
+      0
+    );
+    const excessInt = Math.max(player.stats.int - 4, 0);
+    for (let i = 0; i < excessMP; i++) {
+      totalAPResets += player.removeStats({ ap_mp: 1 });
+      player.addStats({ ap_hp: 1 });
+    }
+
+    totalAPResets += player.removeStats({ int: excessInt });
+    totalAPResets +=
+      player.removeStats({ ap_mp: investedHP }) ||
+      player.removeStats({ ap_hp: investedHP });
+
+    player.addStats({ [mainStatKey]: excessInt + investedHP });
   }
 
   return { player, data, totalAPResets };
@@ -162,7 +176,7 @@ export const createHPWashPlan = (
   return {
     data,
     hpDifference,
-    totalAPResets,
+    totalAPResets: totalAPResets === 1 ? 0 : totalAPResets,
     player: simulatedPlayer,
   };
 };

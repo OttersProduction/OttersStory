@@ -1,6 +1,8 @@
 import { GearItem } from "./gear";
 
 export interface Stats {
+  ap_mp: number;
+  ap_hp: number;
   str: number;
   dex: number;
   int: number;
@@ -11,8 +13,10 @@ export interface Stats {
 }
 
 export enum Action {
-  HP_WASH = "hp_wash",
-  MP_WASH = "mp_wash",
+  ADD_HP = "add_hp",
+  REMOVE_HP = "remove_hp",
+  ADD_MP = "add_mp",
+  REMOVE_MP = "remove_mp",
   ADD_INT = "add_int",
   REMOVE_INT = "remove_int",
   ADD_MAIN_STAT = "add_main_stat",

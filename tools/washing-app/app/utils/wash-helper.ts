@@ -74,7 +74,7 @@ export const getHPGainByAP = (
   return bonusHP * ap;
 };
 
-export const getAPResetsHPWash = (job: Job, level: number, mp: number) => {
+export const getExcessMPAP = (job: Job, level: number, mp: number) => {
   const minMP = getMinimumMP(job, level);
   if (mp > minMP) {
     const mpDiff = mp - minMP;

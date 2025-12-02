@@ -1,13 +1,14 @@
 import { getHP, getMP, getQuestHP } from "@/app/utils/hp-mp-helper";
 import {
-  getAPResetsHPWash,
+  getExcessMPAP,
   getHPGainByAP,
-  getMPLossByAP,
+  getMPGainByAP,
 } from "@/app/utils/wash-helper";
 import { HPQuest } from "@/app/models/hp-quest";
 import { Job } from "@/app/models/job";
 import { GearItem, GearSlot } from "@/app/models/gear";
 import { Action, BreakoutPlan, Stats } from "@/app/models/player";
+import { clamp } from "@/app/utils/math";
 
 export const INITIAL_MP = 5;
 export const INITIAL_HP = 50;
@@ -19,6 +20,8 @@ export class Player {
     dex: 4,
     int: 4,
     luk: 4,
+    ap_mp: 0,
+    ap_hp: 0,
     naturalHP: INITIAL_HP,
     naturalMP: INITIAL_MP,
     ap: 9,
@@ -110,17 +113,24 @@ export class Player {
   }
 
   public washHP() {
-    const possibleWashes = getAPResetsHPWash(this.job, this.level, this.mp);
-    const apResets = Math.min(possibleWashes, this.stats.ap);
-    this.mpGain -= getMPLossByAP(this.job, apResets);
-    this.hpGain += getHPGainByAP(this.job, true, apResets);
-    if (apResets > 0) {
-      this.breakoutPlan[this.level].actions.push({
-        type: Action.HP_WASH,
-        ap: apResets,
-      });
+    const possibleWashes = getExcessMPAP(this.job, this.level, this.mp);
+
+    if (possibleWashes > 0) {
+      this.addStats({ ap_hp: 1 });
+      this.removeStats({ ap_mp: 1 });
+
+      return 1;
     }
-    return apResets;
+    return 0;
+  }
+
+  public washMP() {
+    const possibleWashes = getExcessMPAP(this.job, this.level, this.mp);
+
+    const apReset = clamp(Math.min(this.stats.ap, possibleWashes), 0, 1);
+    this.addStats({ ap_mp: apReset });
+    this.removeStats({ ap_mp: apReset });
+    return apReset;
   }
 
   get mp() {
@@ -153,9 +163,15 @@ export class Player {
 
   public addStats(args: Partial<Stats>) {
     const totalAP =
-      (args.str ?? 0) + (args.dex ?? 0) + (args.int ?? 0) + (args.luk ?? 0);
+      (args.str ?? 0) +
+      (args.dex ?? 0) +
+      (args.int ?? 0) +
+      (args.luk ?? 0) +
+      (args.ap_hp ?? 0) +
+      (args.ap_mp ?? 0);
+
     if (totalAP > this.stats.ap) {
-      throw new Error(`Total AP cannot be greater than ${this.stats.ap}`);
+      throw new Error(`Cannot apply more AP than available`);
     }
     this.stats.ap -= totalAP;
     this.stats.str += args.str ?? 0;
@@ -163,6 +179,25 @@ export class Player {
     this.stats.int += args.int ?? 0;
     this.stats.luk += args.luk ?? 0;
 
+    this.stats.ap_hp += args.ap_hp ?? 0;
+    this.stats.ap_mp += args.ap_mp ?? 0;
+
+    this.hpGain += getHPGainByAP(this.job, true, args.ap_hp ?? 0);
+
+    this.mpGain += getMPGainByAP(this.job, this.stats.int, args.ap_mp ?? 0);
+
+    if (args.ap_hp) {
+      this.breakoutPlan[this.level].actions.push({
+        type: Action.ADD_HP,
+        ap: args.ap_hp,
+      });
+    }
+    if (args.ap_mp) {
+      this.breakoutPlan[this.level].actions.push({
+        type: Action.ADD_MP,
+        ap: args.ap_mp,
+      });
+    }
     if (args.int) {
       this.breakoutPlan[this.level].actions.push({
         type: Action.ADD_INT,
@@ -175,6 +210,71 @@ export class Player {
         ap: totalAP,
       });
     }
+  }
+
+  get hpmpPool(): number {
+    return Math.max(this.stats.ap_hp, 0) + Math.max(this.stats.ap_mp, 0);
+  }
+  get statPool(): number {
+    return this.stats.str + this.stats.dex + this.stats.int + this.stats.luk;
+  }
+
+  public removeStats(args: Partial<Stats>) {
+    let apResets = 0;
+    if (
+      (args.ap_mp && args.ap_mp > this.hpmpPool) ||
+      (args.ap_hp && args.ap_hp > this.hpmpPool)
+    ) {
+      throw new Error(`Cannot remove more AP than available`);
+    }
+
+    if (
+      args.ap_mp &&
+      getExcessMPAP(this.job, this.level, this.mp) >= args.ap_mp
+    ) {
+      this.stats.ap_mp -= args.ap_mp;
+      this.stats.ap += args.ap_mp;
+      this.mpGain -= getMPGainByAP(this.job, 0, args.ap_mp);
+      apResets += args.ap_mp;
+      this.breakoutPlan[this.level].actions.push({
+        type: Action.REMOVE_MP,
+        ap: args.ap_mp,
+      });
+    }
+
+    if (args.ap_hp) {
+      this.stats.ap_hp -= args.ap_hp;
+      this.stats.ap += args.ap_hp;
+      this.hpGain -= getHPGainByAP(this.job, true, args.ap_hp);
+      apResets += args.ap_hp;
+      this.breakoutPlan[this.level].actions.push({
+        type: Action.REMOVE_HP,
+        ap: args.ap_hp,
+      });
+    }
+
+    if (args.str || args.dex || args.int || args.luk) {
+      const totalAP =
+        (args.str ?? 0) + (args.dex ?? 0) + (args.int ?? 0) + (args.luk ?? 0);
+      if (totalAP > this.statPool) {
+        throw new Error(`Cannot remove more stats than available`);
+      }
+      this.stats.str -= args.str ?? 0;
+      this.stats.dex -= args.dex ?? 0;
+      this.stats.int -= args.int ?? 0;
+      this.stats.luk -= args.luk ?? 0;
+
+      this.stats.ap += totalAP;
+      apResets += totalAP;
+
+      if (args.int) {
+        this.breakoutPlan[this.level].actions.push({
+          type: Action.REMOVE_INT,
+          ap: args.int,
+        });
+      }
+    }
+    return apResets;
   }
 
   private updateEquippedForLevel() {
