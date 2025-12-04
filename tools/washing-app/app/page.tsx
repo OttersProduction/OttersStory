@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import Graph from "@/components/logical/graph";
 
-import { createHPWashPlan } from "./utils/hp-wash";
+import { createWashPlan } from "./utils/wash";
 import { WashingOverview } from "@/components/logical/washing-overview";
 import { FormValues, InitalForm } from "@/components/logical/form";
 import { Player } from "@/lib/player";
@@ -50,7 +50,7 @@ export default function Home() {
       inventory
     );
 
-    return createHPWashPlan(
+    return createWashPlan(
       player,
       formvalues.targetLevel,
       formvalues.targetHP,

@@ -12,7 +12,8 @@ const simulateWashing = (
   player: Player,
   targetLevel: number,
   targetInt: number,
-  washingMode: WashingMode = "hp"
+  washingMode: WashingMode = "hp",
+  levelToMpWash: number = 0
 ) => {
   const data = [];
 
@@ -53,6 +54,23 @@ const simulateWashing = (
         totalAPResets += player.washHP();
       }
 
+      if (
+        washingMode === "mp" &&
+        player.level >= levelToMpWash &&
+        getExcessMPAP(player.job, player.level, player.mp) > 0
+      ) {
+        player.addStats({ ap_mp: 1 });
+
+        if (targetInt > player.stats.int) {
+          totalAPResets += 1;
+          player.removeStats({ ap_mp: 1 });
+        }
+      }
+      //we used all ap on mp noting left for main stat
+      if (player.stats.ap === 0) {
+        break;
+      }
+
       // Second priority: Add INT up to target if we still have AP remaining
       if (targetInt > player.stats.int) {
         player.addStats({ int: 1 });
@@ -62,14 +80,6 @@ const simulateWashing = (
     }
   }
 
-  data.push({
-    level: player.level,
-    hp: player.hp,
-    mp: player.mp,
-
-    int: player.totalInt,
-    [mainStatKey]: player.stats[mainStatKey],
-  });
   // Only count INT-based AP resets if washing is enabled
   if (player.job !== Job.MAGICIAN) {
     const excessMP = Math.max(
@@ -90,6 +100,15 @@ const simulateWashing = (
     player.addStats({ [mainStatKey]: excessInt + investedHP });
   }
 
+  data.push({
+    level: player.level,
+    hp: player.hp,
+    mp: player.mp,
+
+    int: player.totalInt,
+    [mainStatKey]: player.stats[mainStatKey],
+  });
+
   return { player, data, totalAPResets };
 };
 
@@ -103,7 +122,7 @@ const findOptimalInt = (
   washingMode: WashingMode = "hp"
 ): number => {
   // If washing is disabled, we can't optimize INT for HP washing
-  if (washingMode !== "hp") {
+  if (washingMode === "none") {
     return 4; // Return minimum INT
   }
 
@@ -134,7 +153,7 @@ const findOptimalInt = (
       washingMode
     );
 
-    if (simulatedPlayer.hp >= targetHP) {
+    if (simulatedPlayer.hp > targetHP) {
       // We reached the target, try with less INT
       bestInt = mid;
       high = mid - 1;
@@ -147,7 +166,7 @@ const findOptimalInt = (
   return bestInt;
 };
 
-export const createHPWashPlan = (
+export const createWashPlan = (
   player: Player,
   targetLevel: number,
   targetHP: number,
@@ -186,5 +205,6 @@ export const createHPWashPlan = (
     hpDifference,
     totalAPResets: totalAPResets === 1 ? 0 : totalAPResets,
     player: simulatedPlayer,
+    finalInt: effectiveInt,
   };
 };

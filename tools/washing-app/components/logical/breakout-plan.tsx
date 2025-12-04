@@ -15,6 +15,7 @@ type BreakoutViewMode = "simple" | "complex";
 export const BreakoutPlan = ({ breakoutPlan }: BreakoutPlanProps) => {
   const [mode, setMode] = useState<BreakoutViewMode>("simple");
 
+  console.log(breakoutPlan);
   return (
     <div className="flex-1 min-w-0 space-y-3">
       <div className="flex items-center justify-between gap-2">

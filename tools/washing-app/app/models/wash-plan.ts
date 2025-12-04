@@ -12,4 +12,5 @@ export interface WashPlan {
   hpDifference: number;
   totalAPResets: number;
   player: Player;
+  finalInt: number;
 }
