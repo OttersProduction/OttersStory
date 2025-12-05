@@ -27,6 +27,7 @@ export const BreakoutPlanComplex = ({
     firstWashLevel,
     lastWashLevel,
     totalHPWashes,
+    totalMPWashes,
   }: PlanBuildResult = useMemo(
     () => buildPlanGroups(breakoutPlan),
     [breakoutPlan]
@@ -37,7 +38,7 @@ export const BreakoutPlanComplex = ({
       <CardHeader className="space-y-2">
         <CardTitle>Washing Playbook</CardTitle>
         <CardDescription>
-          Condensed washing and stat allocation plan by level range.
+          Condensed HP/MP washing and stat allocation plan by level range.
         </CardDescription>
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           {totalHPWashes > 0 && (
@@ -52,6 +53,14 @@ export const BreakoutPlanComplex = ({
                   (levels {firstWashLevel}–{lastWashLevel})
                 </span>
               )}
+            </div>
+          )}
+          {totalMPWashes > 0 && (
+            <div>
+              <span className="font-medium">
+                {totalMPWashes.toLocaleString()}
+              </span>{" "}
+              total MP washes
             </div>
           )}
         </div>
@@ -77,5 +86,3 @@ export const BreakoutPlanComplex = ({
     </Card>
   );
 };
-
-

@@ -13,6 +13,8 @@ export type PatternRangeGroup = {
   startLevel: number;
   endLevel: number;
   perLevelHPWashes: number;
+  perLevelMPAP: number;
+  perLevelRemovedMPAP: number;
   perLevelIntAP: number;
   perLevelRemovedIntAP: number;
   perLevelMainStatAP: number;
@@ -23,12 +25,15 @@ export type PlanGroup = EventGroup | PatternRangeGroup;
 export type AggregatedLevel = {
   level: number;
   levelHPWashes: number;
+  mpAP: number;
+  removedMPAP: number;
   intAP: number;
   /** AP removed from INT (AP resets) */
   removedIntAP: number;
   mainStatAP: number;
   hasEquips: boolean;
   hasHPWash: boolean;
+  hasMPWash: boolean;
   hasAnyAPChange: boolean;
   equipSummaries: string[];
 };
@@ -38,6 +43,9 @@ export type PlanBuildResult = {
   firstWashLevel?: number;
   lastWashLevel?: number;
   totalHPWashes: number;
+  firstMPWashLevel?: number;
+  lastMPWashLevel?: number;
+  totalMPWashes: number;
 };
 
 const aggregateLevel = (
@@ -47,6 +55,10 @@ const aggregateLevel = (
   // A "HP wash" is represented by AP resets moving MP into HP.
   // Each reset results in a REMOVE_MP and ADD_HP pair; we count by REMOVE_MP.
   const hpWashActions = details.actions.filter((a) => a.type === Action.ADD_HP);
+  const addMPActions = details.actions.filter((a) => a.type === Action.ADD_MP);
+  const removeMPActions = details.actions.filter(
+    (a) => a.type === Action.REMOVE_MP
+  );
   const addIntActions = details.actions.filter(
     (a) => a.type === Action.ADD_INT
   );
@@ -58,14 +70,22 @@ const aggregateLevel = (
   );
 
   const levelHPWashes = hpWashActions.reduce((sum, a) => sum + a.ap, 0);
+  const mpAP = addMPActions.reduce((sum, a) => sum + a.ap, 0);
+  const removedMPAP = removeMPActions.reduce((sum, a) => sum + a.ap, 0);
   const intAP = addIntActions.reduce((sum, a) => sum + a.ap, 0);
   const removedIntAP = removeIntActions.reduce((sum, a) => sum + a.ap, 0);
   const mainStatAP = addMainStatActions.reduce((sum, a) => sum + a.ap, 0);
 
   const hasEquips = details.equips.length > 0;
   const hasHPWash = levelHPWashes > 0;
+  const hasMPWash = mpAP > 0;
   const hasAnyAPChange =
-    intAP > 0 || removedIntAP > 0 || mainStatAP > 0 || levelHPWashes > 0;
+    intAP > 0 ||
+    removedIntAP > 0 ||
+    mainStatAP > 0 ||
+    levelHPWashes > 0 ||
+    mpAP > 0 ||
+    removedMPAP > 0;
 
   const equipSummaries = details.equips.map((e) => {
     const name = e.item.name || e.item.id || "New gear";
@@ -79,11 +99,14 @@ const aggregateLevel = (
   return {
     level,
     levelHPWashes,
+    mpAP,
+    removedMPAP,
     intAP,
     removedIntAP,
     mainStatAP,
     hasEquips,
     hasHPWash,
+    hasMPWash,
     hasAnyAPChange,
     equipSummaries,
   };
@@ -101,6 +124,8 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   const {
     level,
     levelHPWashes,
+    mpAP,
+    removedMPAP,
     intAP,
     removedIntAP,
     mainStatAP,
@@ -111,11 +136,17 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   if (levelHPWashes > 0) {
     actionParts.push(`${levelHPWashes} HP washes`);
   }
+  if (mpAP > 0) {
+    actionParts.push(`+${mpAP} AP into MP`);
+  }
   if (intAP > 0) {
     actionParts.push(`+${intAP} INT (AP)`);
   }
   if (removedIntAP > 0) {
     actionParts.push(`reset ${removedIntAP} INT (AP)`);
+  }
+  if (removedMPAP > 0) {
+    actionParts.push(`reset ${removedMPAP} MP (AP)`);
   }
   if (mainStatAP > 0) {
     actionParts.push(`+${mainStatAP} main stat (AP)`);
@@ -128,11 +159,17 @@ const buildEventGroup = (levelInfo: AggregatedLevel): EventGroup => {
   if (levelHPWashes > 0) {
     actions.push(`Use ${levelHPWashes} AP resets for HP washing.`);
   }
+  if (mpAP > 0) {
+    actions.push(`Allocate ${mpAP} AP into MP (MP washing).`);
+  }
   if (intAP > 0) {
     actions.push(`Allocate ${intAP} AP into INT.`);
   }
   if (removedIntAP > 0) {
     actions.push(`Use ${removedIntAP} AP resets to remove INT.`);
+  }
+  if (removedMPAP > 0) {
+    actions.push(`Use ${removedMPAP} AP resets to remove MP.`);
   }
   if (mainStatAP > 0) {
     actions.push(`Allocate ${mainStatAP} AP into your main stat.`);
@@ -155,6 +192,9 @@ export const buildPlanGroups = (
   let firstWashLevel: number | undefined;
   let lastWashLevel: number | undefined;
   let totalHPWashes = 0;
+  let firstMPWashLevel: number | undefined;
+  let lastMPWashLevel: number | undefined;
+  let totalMPWashes = 0;
 
   const groups: PlanGroup[] = [];
   let currentPatternGroup: PatternRangeGroup | undefined;
@@ -169,11 +209,14 @@ export const buildPlanGroups = (
     const {
       level,
       levelHPWashes,
+      mpAP,
+      removedMPAP,
       intAP,
       removedIntAP,
       mainStatAP,
       hasEquips,
       hasHPWash,
+      hasMPWash,
       hasAnyAPChange,
     } = levelInfo;
 
@@ -181,6 +224,12 @@ export const buildPlanGroups = (
       totalHPWashes += levelHPWashes;
       if (firstWashLevel === undefined) firstWashLevel = level;
       lastWashLevel = level;
+    }
+
+    if (hasMPWash) {
+      totalMPWashes += mpAP;
+      if (firstMPWashLevel === undefined) firstMPWashLevel = level;
+      lastMPWashLevel = level;
     }
 
     // Any gear changes are always their own event
@@ -194,6 +243,8 @@ export const buildPlanGroups = (
     if (hasAnyAPChange) {
       const pattern = {
         perLevelHPWashes: levelHPWashes,
+        perLevelMPAP: mpAP,
+        perLevelRemovedMPAP: removedMPAP,
         perLevelIntAP: intAP,
         perLevelRemovedIntAP: removedIntAP,
         perLevelMainStatAP: mainStatAP,
@@ -203,6 +254,9 @@ export const buildPlanGroups = (
         currentPatternGroup &&
         level === currentPatternGroup.endLevel + 1 &&
         currentPatternGroup.perLevelHPWashes === pattern.perLevelHPWashes &&
+        currentPatternGroup.perLevelMPAP === pattern.perLevelMPAP &&
+        currentPatternGroup.perLevelRemovedMPAP ===
+          pattern.perLevelRemovedMPAP &&
         currentPatternGroup.perLevelIntAP === pattern.perLevelIntAP &&
         currentPatternGroup.perLevelRemovedIntAP ===
           pattern.perLevelRemovedIntAP &&
@@ -231,5 +285,8 @@ export const buildPlanGroups = (
     firstWashLevel,
     lastWashLevel,
     totalHPWashes,
+    firstMPWashLevel,
+    lastMPWashLevel,
+    totalMPWashes,
   };
 };

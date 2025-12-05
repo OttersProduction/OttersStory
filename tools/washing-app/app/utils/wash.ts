@@ -86,18 +86,21 @@ const simulateWashing = (
       getExcessMPAP(player.job, player.level, player.mp) - investedHP,
       0
     );
+
+    const investedMPAP = player.stats.ap_mp;
     const excessInt = Math.max(player.stats.int - 4, 0);
-    for (let i = 0; i < excessMP; i++) {
+    for (let i = investedMPAP; i < excessMP; i++) {
       totalAPResets += player.removeStats({ ap_mp: 1 });
       player.addStats({ ap_hp: 1 }, false);
     }
+    totalAPResets += player.removeStats({ ap_mp: investedMPAP });
 
     totalAPResets += player.removeStats({ int: excessInt });
     totalAPResets +=
       player.removeStats({ ap_mp: investedHP }) ||
       player.removeStats({ ap_hp: investedHP });
 
-    player.addStats({ [mainStatKey]: excessInt + investedHP });
+    player.addStats({ [mainStatKey]: excessInt + investedHP + investedMPAP });
   }
 
   data.push({

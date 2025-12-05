@@ -55,6 +55,8 @@ export const BreakoutPatternRangeRow = ({
     startLevel,
     endLevel,
     perLevelHPWashes,
+    perLevelMPAP,
+    perLevelRemovedMPAP,
     perLevelIntAP,
     perLevelRemovedIntAP,
     perLevelMainStatAP,
@@ -78,6 +80,16 @@ export const BreakoutPatternRangeRow = ({
       );
     }
   }
+  if (perLevelMPAP > 0) {
+    const totalMP = perLevelMPAP * levelCount;
+    if (levelCount === 1) {
+      summaryParts.push(`Allocate ${perLevelMPAP} AP into MP (MP washing)`);
+    } else {
+      summaryParts.push(
+        `Allocate ${perLevelMPAP} AP into MP per level (≈${totalMP} total AP)`
+      );
+    }
+  }
   if (perLevelIntAP > 0) {
     if (levelCount === 1) {
       summaryParts.push(`Allocate ${perLevelIntAP} AP into INT`);
@@ -91,6 +103,15 @@ export const BreakoutPatternRangeRow = ({
     } else {
       summaryParts.push(
         `Use ${perLevelRemovedIntAP} AP resets to remove INT per level`
+      );
+    }
+  }
+  if (perLevelRemovedMPAP > 0) {
+    if (levelCount === 1) {
+      summaryParts.push(`Use ${perLevelRemovedMPAP} AP resets to remove MP`);
+    } else {
+      summaryParts.push(
+        `Use ${perLevelRemovedMPAP} AP resets to remove MP per level`
       );
     }
   }
