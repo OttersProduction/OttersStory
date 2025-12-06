@@ -2,6 +2,7 @@
 import { Moon, Sun } from "lucide-react";
 import { setCookie } from "cookies-next";
 import { useEffect, useState } from "react";
+import posthog from "posthog-js";
 import { Switch } from "@/components/ui/switch";
 
 const ThemeToggle = ({ defaultTheme }: { defaultTheme: string }) => {
@@ -24,7 +25,20 @@ const ThemeToggle = ({ defaultTheme }: { defaultTheme: string }) => {
   const isDark = theme === "dark";
 
   const handleCheckedChange = (checked: boolean) => {
-    setTheme(checked ? "dark" : "light");
+    const nextTheme = checked ? "dark" : "light";
+    setTheme(nextTheme);
+
+    const themePreset =
+      document.documentElement.dataset.themePreset || "northern-lights";
+
+    posthog.capture("theme_mode_changed", {
+      theme_mode: nextTheme,
+      theme_preset: themePreset,
+      $set: {
+        theme_mode: nextTheme,
+        theme_preset: themePreset,
+      },
+    });
   };
 
   const thumbIcon = isDark ? (

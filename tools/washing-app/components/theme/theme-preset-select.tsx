@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import { setCookie } from "cookies-next/client";
+import posthog from "posthog-js";
 
 const PRESET_THEMES = [
   { value: "amethyst-haze", label: "Amethyst Haze" },
@@ -37,8 +38,30 @@ export function ThemePresetSelect({
     document.documentElement.dataset.themePreset = themePreset;
   }, [themePreset]);
 
+  const handlePresetChange = (value: string) => {
+    setThemePreset(value);
+
+    const mode = document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light";
+
+    const label =
+      PRESET_THEMES.find((theme) => theme.value === value)?.label ?? value;
+
+    posthog.capture("theme_preset_changed", {
+      theme_preset: value,
+      theme_preset_label: label,
+      theme_mode: mode,
+      $set: {
+        theme_preset: value,
+        theme_preset_label: label,
+        theme_mode: mode,
+      },
+    });
+  };
+
   return (
-    <Select value={themePreset} onValueChange={setThemePreset}>
+    <Select value={themePreset} onValueChange={handlePresetChange}>
       <SelectTrigger
         size="sm"
         aria-label="Select visual theme"

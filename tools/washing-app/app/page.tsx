@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import posthog from "posthog-js";
 
 import Graph from "@/components/logical/graph";
 
@@ -18,6 +19,15 @@ export default function Home() {
 
   const handleSubmit = (values: FormValues) => {
     setFormvalues(values);
+
+    // Track washing breakdown in PostHog
+    posthog.capture("washing_plan_submitted", {
+      class: values.job,
+      goal_hp: values.targetHP,
+      goal_level: values.targetLevel,
+      washing_type: values.washingMode,
+      hp_quests: values.hpQuests,
+    });
   };
 
   const plan = useMemo(() => {
